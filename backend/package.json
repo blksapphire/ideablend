@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "main": "src/index.js",
   "prisma": {
-    "schema": "/prisma/schema.prisma"
+    "schema": "prisma/schema.prisma"
   },
   "scripts": {
     "dev": "nodemon --watch src --exec node src/index.js",
