@@ -1,7 +1,14 @@
 require('dotenv').config();
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
+
+// created fresh on every boot rather than relying on committed .gitkeep
+// files surviving the deploy pipeline - matters especially on platforms
+// with ephemeral/fresh filesystems per deploy (see the file storage note
+// further down in this file, near the static /avatars mount)
+fs.mkdirSync(path.join(__dirname, '..', 'uploads', 'avatars'), { recursive: true });
 
 const authRoutes = require('./routes/auth');
 const projectsRoutes = require('./routes/projects');
@@ -33,6 +40,12 @@ app.use(express.json());
 
 // avatars are meant to be publicly viewable (profile pictures shown across
 // the app), unlike project files which stay behind auth checks
+//
+// IMPORTANT: this stores files on local disk, which does NOT survive a
+// redeploy on platforms like Railway/Render/Heroku (ephemeral filesystem -
+// wiped clean on every deploy). Fine for local dev and short-lived testing;
+// before relying on this for real, migrate to a persistent Railway Volume
+// or an object store (S3/Cloudflare R2).
 app.use('/avatars', express.static(path.join(__dirname, '..', 'uploads', 'avatars')));
 
 app.use('/api/auth', authRoutes);
