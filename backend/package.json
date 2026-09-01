@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "nodemon --watch src --exec node src/index.js",
-    "start": "node src/index.js",
+    "build": "prisma generate",
+    "start": "prisma migrate deploy && node src/index.js",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:generate": "prisma generate"
   },
@@ -27,3 +28,4 @@
     "nodemon": "^2.0.22"
   }
 }
+
