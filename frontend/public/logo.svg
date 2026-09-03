@@ -1,0 +1,6 @@
+<svg width="280" height="64" viewBox="0 0 280 64" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="24" cy="26" r="16" fill="#6C4FFF" opacity="0.9" />
+  <circle cx="40" cy="26" r="16" fill="#14C9A6" opacity="0.85" />
+  <circle cx="32" cy="40" r="16" fill="#2F8FFF" opacity="0.85" />
+  <text x="72" y="40" font-family="Unbounded, sans-serif" font-weight="700" font-size="28" fill="#0A0A0B">Idea Blend</text>
+</svg>

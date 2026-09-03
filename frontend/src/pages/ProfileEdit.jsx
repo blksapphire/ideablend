@@ -4,6 +4,7 @@ import { get, post, del, patch, uploadFile } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { Avatar } from '../components/BlendRings';
 import SignInPrompt from '../components/SignInPrompt';
+import { COUNTRIES, CITY_SUGGESTIONS, getTimezones } from '../lib/locationData';
 
 const AVAILABILITY_OPTIONS = [
   { value: '', label: 'Not set' },
@@ -27,11 +28,15 @@ export default function ProfileEdit() {
   async function load() {
     const data = await get('/users/me');
     setProfile(data);
+    // location is stored as one combined "City, Country" string on the
+    // backend - split it here so it can be edited as two separate dropdowns
+    const [city = '', country = ''] = (data.location || '').split(',').map(s => s.trim());
     setFields({
       name: data.name || '', headline: data.headline || '', bio: data.bio || '',
       githubUrl: data.githubUrl || '', portfolioUrl: data.portfolioUrl || '',
       linkedinUrl: data.linkedinUrl || '', websiteUrl: data.websiteUrl || '',
-      location: data.location || '', timezone: data.timezone || '',
+      city, country: COUNTRIES.includes(country) ? country : '',
+      timezone: data.timezone || '',
       openToProjects: data.openToProjects, openToCofounder: data.openToCofounder,
       openToFreelance: data.openToFreelance, openToEmployment: data.openToEmployment,
       availability: data.availability || ''
@@ -52,7 +57,9 @@ export default function ProfileEdit() {
 
   async function save(e) {
     e.preventDefault();
-    const updated = await patch('/users/me', { ...fields, availability: fields.availability || null });
+    const location = [fields.city, fields.country].filter(Boolean).join(', ');
+    const { city, country, ...rest } = fields;
+    const updated = await patch('/users/me', { ...rest, location, availability: fields.availability || null });
     updateUser(updated);
     setSaved(true);
     setTimeout(() => setSaved(false), 1200);
@@ -118,11 +125,25 @@ export default function ProfileEdit() {
           className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
 
         <div className="grid grid-cols-2 gap-3">
-          <input value={fields.location} onChange={set('location')} placeholder="Location (e.g. Lagos, Nigeria)"
-            className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
-          <input value={fields.timezone} onChange={set('timezone')} placeholder="Timezone (e.g. WAT, UTC+1)"
-            className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
+          <div>
+            <input value={fields.city} onChange={set('city')} placeholder="City" list="city-suggestions"
+              className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
+            <datalist id="city-suggestions">
+              {CITY_SUGGESTIONS.map(c => <option key={c} value={c} />)}
+            </datalist>
+          </div>
+          <select value={fields.country} onChange={set('country')}
+            className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark">
+            <option value="">Country…</option>
+            {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
         </div>
+
+        <select value={fields.timezone} onChange={set('timezone')}
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark">
+          <option value="">Timezone…</option>
+          {getTimezones().map(tz => <option key={tz} value={tz}>{tz}</option>)}
+        </select>
 
         <input value={fields.githubUrl} onChange={set('githubUrl')} placeholder="GitHub URL"
           className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />

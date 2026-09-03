@@ -59,7 +59,7 @@ router.get('/users', requireAuth, requireAdmin, asyncHandler(async (req, res) =>
   const [users, total] = await Promise.all([
     prisma.user.findMany({
       where,
-      select: { id: true, email: true, name: true, isAdmin: true, isBanned: true, createdAt: true, lastActiveAt: true },
+      select: { id: true, email: true, name: true, isAdmin: true, isBanned: true, isRemoved: true, createdAt: true, lastActiveAt: true },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * pageSize,
       take: pageSize
@@ -86,6 +86,42 @@ router.post('/users/:id/unban', requireAuth, requireAdmin, asyncHandler(async (r
   const id = Number(req.params.id);
   const updated = await prisma.user.update({ where: { id }, data: { isBanned: false }, select: { id: true, email: true, isBanned: true } });
   res.json(updated);
+}));
+
+// "remove" = anonymize, not a real SQL delete (see the comment above ban/unban
+// for why a hard delete isn't safe here). Scrubs every identifying field,
+// detaches skill tags, and blocks login - but the row stays so every other
+// user's projects/messages/reviews/tasks referencing this id stay intact.
+// This cannot be undone: the original email/name/bio etc. are gone for good.
+router.post('/users/:id/remove', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const id = Number(req.params.id);
+  if (id === req.user.id) return res.status(400).json({ error: "can't remove yourself" });
+
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) return res.status(404).json({ error: 'not found' });
+
+  const randomPassword = require('crypto').randomBytes(32).toString('hex');
+  const bcrypt = require('bcryptjs');
+  const unusableHash = await bcrypt.hash(randomPassword, 10);
+
+  await prisma.$transaction([
+    prisma.userSkill.deleteMany({ where: { userId: id } }),
+    prisma.user.update({
+      where: { id },
+      data: {
+        email: `deleted-${id}@ideablend.removed`,
+        password: unusableHash,
+        name: null, headline: null, bio: null, skills: null,
+        githubUrl: null, portfolioUrl: null, linkedinUrl: null, websiteUrl: null,
+        location: null, timezone: null, profilePic: null,
+        openToProjects: false, openToCofounder: false, openToFreelance: false, openToEmployment: false,
+        availability: null,
+        isBanned: true, isRemoved: true, isAdmin: false
+      }
+    })
+  ]);
+
+  res.json({ ok: true, id });
 }));
 
 module.exports = router;

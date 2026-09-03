@@ -106,6 +106,7 @@ model User {
   availability     AvailabilityBand?
   isAdmin       Boolean   @default(false)
   isBanned      Boolean   @default(false)
+  isRemoved     Boolean   @default(false)
   lastActiveAt  DateTime?
   createdAt     DateTime  @default(now())
 
