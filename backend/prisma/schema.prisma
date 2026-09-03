@@ -105,6 +105,8 @@ model User {
   openToEmployment Boolean @default(false)
   availability     AvailabilityBand?
   isAdmin       Boolean   @default(false)
+  isBanned      Boolean   @default(false)
+  lastActiveAt  DateTime?
   createdAt     DateTime  @default(now())
 
   ownedProjects Project[]      @relation("ProjectOwner")

@@ -26,7 +26,7 @@ router.post('/register', asyncHandler(async (req, res) => {
 
   const hash = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { email, password: hash, name, skills, githubUrl, portfolioUrl }
+    data: { email, password: hash, name, skills, githubUrl, portfolioUrl, lastActiveAt: new Date() }
   });
 
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -39,9 +39,12 @@ router.post('/login', asyncHandler(async (req, res) => {
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ error: 'invalid credentials' });
+  if (user.isBanned) return res.status(403).json({ error: 'this account has been banned' });
 
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) return res.status(401).json({ error: 'invalid credentials' });
+
+  await prisma.user.update({ where: { id: user.id }, data: { lastActiveAt: new Date() } });
 
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
   res.json({ token, user: safeUser(user) });

@@ -190,6 +190,47 @@ router.patch('/:id', requireAuth, asyncHandler(async (req, res) => {
   res.json(updated);
 }));
 
+// owner adds a new role vacancy to an existing project - the counterpart
+// to defining roles at creation time, since that was previously the only
+// way to add one
+router.post('/:id/roles', requireAuth, asyncHandler(async (req, res) => {
+  const id = requireIntParam(req.params.id, 'project id');
+  const project = await prisma.project.findUnique({ where: { id } });
+  if (!project) return res.status(404).json({ error: 'not found' });
+  if (project.ownerId !== req.user.id) return res.status(403).json({ error: 'not owner' });
+
+  const { name, slots, description, experience, commitment, skills } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ error: 'role name required' });
+  if (experience && !VALID_EXPERIENCE.includes(experience)) return res.status(400).json({ error: 'invalid experience' });
+  if (commitment && !VALID_COMMITMENTS.includes(commitment)) return res.status(400).json({ error: 'invalid commitment' });
+
+  const skillNames = [...new Set((skills || []).map(s => s.name?.trim()).filter(Boolean))];
+  const skillIdByName = {};
+  for (const skillName of skillNames) {
+    const skill = await prisma.skill.upsert({ where: { name: skillName }, update: {}, create: { name: skillName } });
+    skillIdByName[skillName] = skill.id;
+  }
+
+  const role = await prisma.role.create({
+    data: {
+      projectId: id,
+      name: name.trim(),
+      slots: Math.max(1, Number(slots) || 1),
+      description: description || undefined,
+      experience: experience || undefined,
+      commitment: commitment || undefined,
+      roleSkills: {
+        create: (skills || [])
+          .filter(s => s.name && s.name.trim() && skillIdByName[s.name.trim()])
+          .map(s => ({ skillId: skillIdByName[s.name.trim()], level: Math.min(5, Math.max(1, Number(s.level) || 3)) }))
+      }
+    },
+    include: ROLE_INCLUDE
+  });
+
+  res.json({ ...role, filledSlots: 0 });
+}));
+
 // attach a computed `filledSlots` per role instead of trusting a stored count
 function withFilledCounts(projects) {
   return projects.map(p => ({

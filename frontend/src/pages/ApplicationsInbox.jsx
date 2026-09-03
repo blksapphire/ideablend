@@ -48,7 +48,7 @@ export default function ApplicationsInbox() {
       ) : (
         <div className="space-y-3">
           {applications.map(app => (
-            <div key={app.id} className="rounded-xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4">
+            <div key={app.id} className="rounded-xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4">
               <div className="flex justify-between items-start">
                 <div>
                   <Link to={`/users/${app.user.id}`} className="font-semibold text-sm hover:text-violet-text dark:hover:text-violet-textdark">{app.user.name || app.user.email}</Link>
@@ -63,7 +63,7 @@ export default function ApplicationsInbox() {
                   <button onClick={() => act(app.id, 'accept')} className="px-3 py-1.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-xs font-semibold">
                     Accept
                   </button>
-                  <button onClick={() => act(app.id, 'reject')} className="px-3 py-1.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 text-xs font-semibold">
+                  <button onClick={() => act(app.id, 'reject')} className="px-3 py-1.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-xs font-semibold">
                     Reject
                   </button>
                 </div>

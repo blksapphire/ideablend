@@ -29,13 +29,13 @@ function RepoPanel({ project, isOwner, onSaved }) {
   if (!project.repoUrl && !isOwner) return null;
 
   return (
-    <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4 mb-6">
+    <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4 mb-6">
       <h3 className="font-semibold text-sm mb-2">Repository</h3>
       {editing ? (
         <div className="flex gap-2">
           <input
             value={value} onChange={e => setValue(e.target.value)} placeholder="https://github.com/owner/repo"
-            className="flex-1 p-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-page dark:bg-pagedark text-sm"
+            className="flex-1 p-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark text-sm"
           />
           <button onClick={save} className="px-3 py-2 rounded-lg bg-violet dark:bg-violet-dark text-white text-xs font-semibold">Save</button>
           <button onClick={() => setEditing(false)} className="text-xs text-ink/50 dark:text-ink-dark/50">Cancel</button>
@@ -73,7 +73,7 @@ function GithubActivity({ projectId, repoUrl }) {
   if (!activity) return <p className="text-sm text-ink/50 dark:text-ink-dark/50 mb-6">Loading repo activity…</p>;
 
   return (
-    <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4 mb-6">
+    <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4 mb-6">
       <div className="flex justify-between items-start mb-3">
         <div>
           <h3 className="font-semibold text-sm">{activity.fullName}</h3>
@@ -85,7 +85,7 @@ function GithubActivity({ projectId, repoUrl }) {
         </div>
       </div>
       {activity.recentCommits?.length > 0 && (
-        <div className="space-y-1.5 mt-3 pt-3 border-t border-ink/10 dark:border-ink-dark/10">
+        <div className="space-y-1.5 mt-3 pt-3 border-t border-ink/20 dark:border-ink-dark/20">
           {activity.recentCommits.map(c => (
             <div key={c.sha} className="flex justify-between text-xs">
               <span className="truncate pr-2">{c.message}</span>
@@ -133,7 +133,7 @@ function FilesPanel({ projectId, user }) {
   if (!user || files === null) return null;
 
   return (
-    <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4 mb-6">
+    <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4 mb-6">
       <h3 className="font-semibold text-sm mb-3">Files</h3>
       {files.length === 0 && <p className="text-sm text-ink/50 dark:text-ink-dark/50 mb-3">No files yet — specs, mockups, decks.</p>}
       <div className="space-y-2 mb-3">
@@ -196,7 +196,7 @@ export default function ProjectDetail() {
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
       <div className="grid md:grid-cols-[1.4fr_1fr] gap-6 mb-6">
-        <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-6">
+        <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-6">
           <div className="flex flex-wrap gap-1.5">
             {project.category && (
               <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-violet-soft dark:bg-violet-softdark text-violet-text dark:text-violet-textdark">
@@ -221,30 +221,33 @@ export default function ProjectDetail() {
           <p className="text-sm text-ink/60 dark:text-ink-dark/60 mt-3 leading-relaxed">{project.description}</p>
 
           {isOwner ? (
-            <div className="flex gap-2 mt-6">
+            <div className="flex flex-wrap gap-2 mt-6">
               <Link to={`/projects/${project.id}/applications`} className="px-4 py-2.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">
                 Review applications
               </Link>
-              <Link to={`/projects/${project.id}/workspace`} className="px-4 py-2.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 text-sm font-semibold">
+              <Link to={`/projects/${project.id}/workspace`} className="px-4 py-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold">
                 Open workspace
+              </Link>
+              <Link to={`/projects/${project.id}/edit`} className="px-4 py-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold">
+                Edit project
               </Link>
             </div>
           ) : (
             user && (
-              <Link to={`/projects/${project.id}/workspace`} className="inline-block mt-6 px-4 py-2.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 text-sm font-semibold">
+              <Link to={`/projects/${project.id}/workspace`} className="inline-block mt-6 px-4 py-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold">
                 Open workspace
               </Link>
             )
           )}
         </div>
 
-        <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-6">
+        <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-6">
           <h3 className="font-semibold text-sm mb-3">Roles</h3>
           {project.roles.map(role => {
             const full = role.filledSlots >= role.slots;
             const isApplying = applyingRoleId === role.id;
             return (
-              <div key={role.id} className="py-3 border-b border-ink/10 dark:border-ink-dark/10 last:border-none">
+              <div key={role.id} className="py-3 border-b border-ink/20 dark:border-ink-dark/20 last:border-none">
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="text-sm font-semibold">{role.name}</div>
@@ -273,7 +276,7 @@ export default function ProjectDetail() {
                       <textarea
                         value={applyMessage} onChange={e => setApplyMessage(e.target.value)}
                         placeholder="Optional note to the owner" rows={2}
-                        className="w-full p-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-page dark:bg-pagedark text-sm"
+                        className="w-full p-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark text-sm"
                       />
                       <div className="flex gap-2">
                         <button onClick={() => applyToRole(role.id)} className="px-3 py-1.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-xs font-semibold">

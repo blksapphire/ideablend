@@ -19,13 +19,13 @@ export default function MyProjects() {
       <div className="flex gap-2 mb-6">
         <button
           onClick={() => setTab('owned')}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold ${tab === 'owned' ? 'bg-violet dark:bg-violet-dark text-white' : 'border border-ink/15 dark:border-ink-dark/15'}`}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold ${tab === 'owned' ? 'bg-violet dark:bg-violet-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}
         >
           Owned ({data.owned.length})
         </button>
         <button
           onClick={() => setTab('joined')}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold ${tab === 'joined' ? 'bg-violet dark:bg-violet-dark text-white' : 'border border-ink/15 dark:border-ink-dark/15'}`}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold ${tab === 'joined' ? 'bg-violet dark:bg-violet-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}
         >
           Joined ({data.joined.length})
         </button>

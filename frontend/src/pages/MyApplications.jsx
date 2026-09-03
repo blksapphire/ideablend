@@ -32,7 +32,7 @@ export default function MyApplications() {
       ) : (
         <div className="space-y-3">
           {applications.map(app => (
-            <div key={app.id} className="rounded-xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4">
+            <div key={app.id} className="rounded-xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4">
               <div className="flex justify-between items-center">
                 <div>
                   <Link to={`/projects/${app.project.id}`} className="font-semibold text-sm hover:underline">{app.project.title}</Link>
@@ -45,7 +45,7 @@ export default function MyApplications() {
                   <button onClick={() => act(app.id, 'confirm')} className="px-3 py-1.5 rounded-lg bg-teal dark:bg-teal-dark text-white text-xs font-semibold">
                     Confirm and join
                   </button>
-                  <button onClick={() => act(app.id, 'withdraw')} className="px-3 py-1.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 text-xs font-semibold">
+                  <button onClick={() => act(app.id, 'withdraw')} className="px-3 py-1.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-xs font-semibold">
                     Withdraw
                   </button>
                 </div>

@@ -19,19 +19,19 @@ export default function Home() {
           <Link to="/create" className="px-5 py-3 rounded-xl bg-violet dark:bg-violet-dark text-white font-semibold text-sm">
             Post a project
           </Link>
-          <Link to="/explore" className="px-5 py-3 rounded-xl border border-ink/15 dark:border-ink-dark/15 font-semibold text-sm">
+          <Link to="/explore" className="px-5 py-3 rounded-xl border border-ink/25 dark:border-ink-dark/25 font-semibold text-sm">
             Browse open roles
           </Link>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-6">
-        <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-violet-soft dark:bg-violet-softdark text-violet-text dark:text-violet-textdark">
-          FINTECH
+      <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-6">
+        <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark">
+          LOGISTICS
         </span>
-        <h3 className="font-display font-semibold mt-3">Naira remittance tracker</h3>
+        <h3 className="font-display font-semibold mt-3">Live dispatch rider tracker</h3>
         <p className="text-sm text-ink/60 dark:text-ink-dark/60 mt-2">
-          A lightweight app to track cross-border transfer fees in real time.
+          Real-time delivery tracking for local dispatch riders and their customers.
         </p>
       </div>
     </div>

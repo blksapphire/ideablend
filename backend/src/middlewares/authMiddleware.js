@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const prisma = require('../prisma');
 
+const ACTIVITY_UPDATE_THROTTLE_MS = 15 * 60 * 1000; // avoid a DB write on every single request
+
 // requires a valid token; rejects if missing/invalid
 async function requireAuth(req, res, next) {
   const header = req.headers.authorization;
@@ -10,9 +12,20 @@ async function requireAuth(req, res, next) {
     const data = jwt.verify(token, process.env.JWT_SECRET);
     const user = await prisma.user.findUnique({
       where: { id: data.id },
-      select: { id: true, email: true, name: true, headline: true, skills: true, githubUrl: true, portfolioUrl: true, profilePic: true, bio: true, isAdmin: true }
+      select: { id: true, email: true, name: true, headline: true, skills: true, githubUrl: true, portfolioUrl: true, profilePic: true, bio: true, isAdmin: true, isBanned: true, lastActiveAt: true }
     });
     if (!user) return res.status(401).json({ error: 'no user' });
+    if (user.isBanned) return res.status(403).json({ error: 'this account has been banned' });
+
+    // "active users" in the admin dashboard is only meaningful if this gets
+    // updated on real usage, not just login - but writing to the DB on every
+    // authenticated request would be wasteful, so only touch it if it's
+    // been a while since the last update
+    const stale = !user.lastActiveAt || (Date.now() - new Date(user.lastActiveAt).getTime()) > ACTIVITY_UPDATE_THROTTLE_MS;
+    if (stale) {
+      prisma.user.update({ where: { id: user.id }, data: { lastActiveAt: new Date() } }).catch(() => {});
+    }
+
     req.user = user;
     next();
   } catch (err) {

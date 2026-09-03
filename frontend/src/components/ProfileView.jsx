@@ -11,7 +11,7 @@ const AVAILABILITY_LABELS = {
 
 function StatCard({ label, value }) {
   return (
-    <div className="rounded-xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4 text-center">
+    <div className="rounded-xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4 text-center">
       <div className="font-display font-bold text-xl">{value}</div>
       <div className="text-xs text-ink/50 dark:text-ink-dark/50 mt-1">{label}</div>
     </div>
@@ -104,7 +104,7 @@ export default function ProfileView({ profile, reviews, isOwnProfile }) {
         ) : (
           <div className="space-y-3">
             {reviews.map(r => (
-              <div key={r.id} className="rounded-xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-3">
+              <div key={r.id} className="rounded-xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-3">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium">{r.reviewer.name}</span>
                   <Stars rating={r.rating} />

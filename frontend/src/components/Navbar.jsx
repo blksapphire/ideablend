@@ -40,7 +40,7 @@ export default function Navbar() {
   const links = NAV_LINKS.filter(l => !l.authOnly || user);
 
   return (
-    <div className="relative border-b border-ink/10 dark:border-ink-dark/10">
+    <div className="relative border-b border-ink/20 dark:border-ink-dark/20">
       <nav className="max-w-5xl mx-auto flex items-center justify-between py-5 px-6">
         <Link to="/" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
           <BlendLogo />
@@ -58,7 +58,7 @@ export default function Navbar() {
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className="w-9 h-9 rounded-full border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark flex items-center justify-center"
+            className="w-9 h-9 rounded-full border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark flex items-center justify-center"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="4" />
@@ -68,12 +68,12 @@ export default function Navbar() {
 
           {/* hamburger - the nav links above are hidden below sm, this is the only way to reach them on mobile */}
           <button
-            onClick={() => setMobileOpen(o => !o)}
+            onClick={() => setMobileOpen(true)}
             aria-label="Menu"
-            className="sm:hidden w-9 h-9 rounded-full border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark flex items-center justify-center"
+            className="sm:hidden w-9 h-9 rounded-full border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark flex items-center justify-center"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              {mobileOpen ? <path d="M6 6l12 12M6 18L18 6" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+              <path d="M4 7h16M4 12h16M4 17h16" />
             </svg>
           </button>
 
@@ -90,7 +90,7 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login" className="px-4 py-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 text-sm font-semibold">
+                <Link to="/login" className="px-4 py-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold">
                   Sign in
                 </Link>
                 <Link to="/register" className="px-4 py-2 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">
@@ -102,32 +102,49 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* mobile menu: a side drawer sliding in from the right over a dim
+          backdrop, rather than a full-width panel dropping down from the
+          top and covering half the screen */}
       {mobileOpen && (
-        <div className="sm:hidden absolute top-full left-0 right-0 z-20 bg-surface dark:bg-surfacedark border-b border-ink/10 dark:border-ink-dark/10 px-6 py-4 flex flex-col gap-4 shadow-lg">
-          {links.map(l => (
-            <Link key={l.to} to={l.to} onClick={() => setMobileOpen(false)} className="text-sm font-medium">{l.label}</Link>
-          ))}
-          {user?.isAdmin && <Link to="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-medium">Admin</Link>}
+        <div className="sm:hidden fixed inset-0 z-30">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
+          <div className="absolute top-0 right-0 h-full w-72 max-w-[80%] bg-surface dark:bg-surfacedark shadow-xl flex flex-col px-6 py-6">
+            <div className="flex items-center justify-between mb-6">
+              <span className="font-display font-bold text-lg">Menu</span>
+              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="w-8 h-8 flex items-center justify-center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 6l12 12M6 18L18 6" />
+                </svg>
+              </button>
+            </div>
 
-          <div className="border-t border-ink/10 dark:border-ink-dark/10 pt-4">
-            {user ? (
-              <div className="flex items-center justify-between">
-                <Link to="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-sm font-medium">
-                  <Avatar user={user} size={24} />
-                  {user.name || user.email}
-                </Link>
-                <button onClick={handleLogout} className="text-sm text-ink/50 dark:text-ink-dark/50">Sign out</button>
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <Link to="/login" onClick={() => setMobileOpen(false)} className="flex-1 text-center px-4 py-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 text-sm font-semibold">
-                  Sign in
-                </Link>
-                <Link to="/register" onClick={() => setMobileOpen(false)} className="flex-1 text-center px-4 py-2 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">
-                  Sign up
-                </Link>
-              </div>
-            )}
+            <div className="flex flex-col gap-5 text-sm font-medium">
+              {links.map(l => (
+                <Link key={l.to} to={l.to} onClick={() => setMobileOpen(false)}>{l.label}</Link>
+              ))}
+              {user?.isAdmin && <Link to="/admin" onClick={() => setMobileOpen(false)}>Admin</Link>}
+            </div>
+
+            <div className="mt-auto border-t border-ink/20 dark:border-ink-dark/20 pt-5">
+              {user ? (
+                <div className="space-y-3">
+                  <Link to="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-sm font-medium">
+                    <Avatar user={user} size={28} />
+                    {user.name || user.email}
+                  </Link>
+                  <button onClick={handleLogout} className="text-sm text-ink/50 dark:text-ink-dark/50">Sign out</button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <Link to="/register" onClick={() => setMobileOpen(false)} className="text-center px-4 py-2.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">
+                    Sign up
+                  </Link>
+                  <Link to="/login" onClick={() => setMobileOpen(false)} className="text-center px-4 py-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold">
+                    Sign in
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

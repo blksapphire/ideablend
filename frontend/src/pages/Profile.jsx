@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { get } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import ProfileView from '../components/ProfileView';
+import SignInPrompt from '../components/SignInPrompt';
 
 export default function Profile() {
   const { user: authUser } = useAuth();
@@ -16,7 +17,7 @@ export default function Profile() {
     });
   }, [authUser]);
 
-  if (!authUser) return <p className="max-w-lg mx-auto px-6 py-16 text-center text-ink/60 dark:text-ink-dark/60">Sign in to view your profile.</p>;
+  if (!authUser) return <SignInPrompt message="Sign in to view your profile." />;
   if (!profile) return <p className="max-w-lg mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
 
   return (

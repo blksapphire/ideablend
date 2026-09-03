@@ -31,11 +31,11 @@ export default function Login() {
       <form onSubmit={submit} className="space-y-3">
         <input
           value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="you@example.com"
-          className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark"
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark"
         />
         <input
           value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Password"
-          className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark"
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark"
         />
         {error && <p className="text-sm text-red-500">{error}</p>}
         <button disabled={loading} className="w-full p-3 rounded-lg bg-violet dark:bg-violet-dark text-white font-semibold">

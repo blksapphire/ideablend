@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Explore from './pages/Explore';
 import CreateProject from './pages/CreateProject';
+import EditProject from './pages/EditProject';
 import ProjectDetail from './pages/ProjectDetail';
 import ApplicationsInbox from './pages/ApplicationsInbox';
 import MyApplications from './pages/MyApplications';
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/create" element={<CreateProject />} />
+        <Route path="/projects/:id/edit" element={<EditProject />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/projects/:id/applications" element={<ApplicationsInbox />} />
         <Route path="/projects/:id/workspace" element={<Workspace />} />

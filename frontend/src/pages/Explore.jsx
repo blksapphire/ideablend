@@ -29,7 +29,7 @@ function FeaturedSection() {
           <h2 className="font-display font-bold text-lg mb-3">Active builders</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
             {featured.builders.map(b => (
-              <Link key={b.id} to={`/users/${b.id}`} className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4 hover:border-violet/40 dark:hover:border-violet-dark/40 transition-colors">
+              <Link key={b.id} to={`/users/${b.id}`} className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4 hover:border-violet/40 dark:hover:border-violet-dark/40 transition-colors">
                 <div className="flex items-center gap-2">
                   <Avatar user={b} size={36} />
                   <div>
@@ -76,10 +76,10 @@ function ProjectsBrowse() {
       <div className="flex flex-wrap gap-3 mb-6">
         <form onSubmit={e => { e.preventDefault(); load(1); }} className="flex-1 min-w-[200px]">
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search projects"
-            className="w-full p-2.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark text-sm" />
+            className="w-full p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
         </form>
         <select value={category} onChange={e => setCategory(e.target.value)}
-          className="p-2.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark text-sm">
+          className="p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm">
           <option value="">All categories</option>
           {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
@@ -96,9 +96,9 @@ function ProjectsBrowse() {
           </div>
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-4 mt-8">
-              <button disabled={page <= 1} onClick={() => load(page - 1)} className="px-4 py-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 text-sm font-semibold disabled:opacity-30">Previous</button>
+              <button disabled={page <= 1} onClick={() => load(page - 1)} className="px-4 py-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold disabled:opacity-30">Previous</button>
               <span className="font-mono text-xs text-ink/50 dark:text-ink-dark/50">Page {page} of {totalPages}</span>
-              <button disabled={page >= totalPages} onClick={() => load(page + 1)} className="px-4 py-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 text-sm font-semibold disabled:opacity-30">Next</button>
+              <button disabled={page >= totalPages} onClick={() => load(page + 1)} className="px-4 py-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold disabled:opacity-30">Next</button>
             </div>
           )}
         </>
@@ -135,9 +135,9 @@ function BuildersBrowse() {
     <div>
       <form onSubmit={e => { e.preventDefault(); load(1); }} className="flex flex-wrap gap-3 mb-6">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search by name or headline"
-          className="flex-1 min-w-[200px] p-2.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark text-sm" />
+          className="flex-1 min-w-[200px] p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
         <input value={skill} onChange={e => setSkill(e.target.value)} placeholder="Skill (e.g. React)"
-          className="w-48 p-2.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark text-sm" />
+          className="w-48 p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
         <button className="px-4 py-2.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">Search</button>
       </form>
 
@@ -149,7 +149,7 @@ function BuildersBrowse() {
         <>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {builders.map(b => (
-              <Link key={b.id} to={`/users/${b.id}`} className="block rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-5 hover:border-violet/40 dark:hover:border-violet-dark/40 transition-colors">
+              <Link key={b.id} to={`/users/${b.id}`} className="block rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-5 hover:border-violet/40 dark:hover:border-violet-dark/40 transition-colors">
                 <div className="flex items-center gap-3 mb-2">
                   <Avatar user={b} size={40} />
                   <div>
@@ -169,9 +169,9 @@ function BuildersBrowse() {
           </div>
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-4 mt-8">
-              <button disabled={page <= 1} onClick={() => load(page - 1)} className="px-4 py-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 text-sm font-semibold disabled:opacity-30">Previous</button>
+              <button disabled={page <= 1} onClick={() => load(page - 1)} className="px-4 py-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold disabled:opacity-30">Previous</button>
               <span className="font-mono text-xs text-ink/50 dark:text-ink-dark/50">Page {page} of {totalPages}</span>
-              <button disabled={page >= totalPages} onClick={() => load(page + 1)} className="px-4 py-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 text-sm font-semibold disabled:opacity-30">Next</button>
+              <button disabled={page >= totalPages} onClick={() => load(page + 1)} className="px-4 py-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold disabled:opacity-30">Next</button>
             </div>
           )}
         </>
@@ -190,8 +190,8 @@ export default function Explore() {
       <FeaturedSection />
 
       <div className="flex gap-2 mb-6">
-        <button onClick={() => setMode('projects')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'projects' ? 'bg-violet dark:bg-violet-dark text-white' : 'border border-ink/15 dark:border-ink-dark/15'}`}>Projects</button>
-        <button onClick={() => setMode('builders')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'builders' ? 'bg-violet dark:bg-violet-dark text-white' : 'border border-ink/15 dark:border-ink-dark/15'}`}>Builders</button>
+        <button onClick={() => setMode('projects')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'projects' ? 'bg-violet dark:bg-violet-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}>Projects</button>
+        <button onClick={() => setMode('builders')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'builders' ? 'bg-violet dark:bg-violet-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}>Builders</button>
       </div>
 
       {mode === 'projects' ? <ProjectsBrowse /> : <BuildersBrowse />}

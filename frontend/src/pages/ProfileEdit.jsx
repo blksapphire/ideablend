@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { get, post, del, patch, uploadFile } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { Avatar } from '../components/BlendRings';
+import SignInPrompt from '../components/SignInPrompt';
 
 const AVAILABILITY_OPTIONS = [
   { value: '', label: 'Not set' },
@@ -39,7 +40,7 @@ export default function ProfileEdit() {
 
   useEffect(() => { if (authUser) load(); }, [authUser]);
 
-  if (!authUser) return <p className="max-w-lg mx-auto px-6 py-16 text-center text-ink/60 dark:text-ink-dark/60">Sign in to edit your profile.</p>;
+  if (!authUser) return <SignInPrompt message="Sign in to edit your profile." />;
   if (!profile || !fields) return <p className="max-w-lg mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
 
   function set(key) {
@@ -110,27 +111,27 @@ export default function ProfileEdit() {
 
       <form onSubmit={save} className="space-y-3">
         <input value={fields.name} onChange={set('name')} placeholder="Name"
-          className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark" />
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
         <input value={fields.headline} onChange={set('headline')} placeholder="Headline (e.g. Backend dev, Lagos)"
-          className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark" />
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
         <textarea value={fields.bio} onChange={set('bio')} placeholder="Short bio" rows={3}
-          className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark" />
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
 
         <div className="grid grid-cols-2 gap-3">
           <input value={fields.location} onChange={set('location')} placeholder="Location (e.g. Lagos, Nigeria)"
-            className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark" />
+            className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
           <input value={fields.timezone} onChange={set('timezone')} placeholder="Timezone (e.g. WAT, UTC+1)"
-            className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark" />
+            className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
         </div>
 
         <input value={fields.githubUrl} onChange={set('githubUrl')} placeholder="GitHub URL"
-          className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark" />
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
         <input value={fields.linkedinUrl} onChange={set('linkedinUrl')} placeholder="LinkedIn URL"
-          className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark" />
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
         <input value={fields.portfolioUrl} onChange={set('portfolioUrl')} placeholder="Portfolio URL"
-          className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark" />
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
         <input value={fields.websiteUrl} onChange={set('websiteUrl')} placeholder="Website URL"
-          className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark" />
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
 
         <div>
           <label className="text-sm font-semibold">Open to</label>
@@ -143,7 +144,7 @@ export default function ProfileEdit() {
         </div>
 
         <select value={fields.availability} onChange={set('availability')}
-          className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark">
+          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark">
           {AVAILABILITY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
 
@@ -168,11 +169,11 @@ export default function ProfileEdit() {
         <form onSubmit={addSkill} className="flex gap-2">
           <input
             value={newSkillName} onChange={e => setNewSkillName(e.target.value)} placeholder="Add a skill (e.g. React)"
-            className="flex-1 p-2.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark text-sm"
+            className="flex-1 p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm"
           />
           <select
             value={newSkillLevel} onChange={e => setNewSkillLevel(e.target.value)}
-            className="p-2.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark text-sm"
+            className="p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm"
           >
             {[1, 2, 3, 4, 5].map(l => <option key={l} value={l}>Level {l}</option>)}
           </select>

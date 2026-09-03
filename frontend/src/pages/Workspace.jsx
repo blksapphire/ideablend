@@ -47,7 +47,7 @@ function Roster({ project, isOwner, onChanged }) {
   }
 
   return (
-    <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4">
+    <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4">
       <h3 className="font-semibold text-sm mb-3">Team</h3>
       {rows.length === 0 && <p className="text-sm text-ink/50 dark:text-ink-dark/50">No confirmed members yet.</p>}
       <div className="space-y-2">
@@ -62,7 +62,7 @@ function Roster({ project, isOwner, onChanged }) {
               reassigning === membership.id ? (
                 <div className="flex items-center gap-2">
                   <select onChange={e => e.target.value && reassign(membership.id, e.target.value)} defaultValue=""
-                    className="text-xs p-1.5 rounded-md border border-ink/15 dark:border-ink-dark/15 bg-page dark:bg-pagedark">
+                    className="text-xs p-1.5 rounded-md border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark">
                     <option value="" disabled>Move to…</option>
                     {project.roles.filter(r => r.id !== role.id).map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                   </select>
@@ -104,12 +104,12 @@ function ReviewTeammates({ projectId }) {
   if (pending.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4">
+    <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4">
       <h3 className="font-semibold text-sm mb-1">Rate your teammates</h3>
       <p className="text-xs text-ink/50 dark:text-ink-dark/50 mb-3">This project is complete — leave a review for who you worked with.</p>
       <div className="space-y-3">
         {pending.map(p => (
-          <div key={p.id} className="border-t border-ink/10 dark:border-ink-dark/10 pt-3">
+          <div key={p.id} className="border-t border-ink/20 dark:border-ink-dark/20 pt-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">{p.name}</span>
               <div className="flex gap-1">
@@ -120,7 +120,7 @@ function ReviewTeammates({ projectId }) {
               </div>
             </div>
             <input value={comments[p.id] || ''} onChange={e => setComments(c => ({ ...c, [p.id]: e.target.value }))} placeholder="Optional comment"
-              className="w-full mt-2 p-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-page dark:bg-pagedark text-sm" />
+              className="w-full mt-2 p-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark text-sm" />
             <button onClick={() => submitReview(p.id)} className="mt-2 px-3 py-1.5 rounded-lg bg-teal dark:bg-teal-dark text-white text-xs font-semibold">Submit review</button>
           </div>
         ))}
@@ -151,7 +151,7 @@ function Milestones({ projectId }) {
   const progress = milestones.length > 0 ? Math.round((done / milestones.length) * 100) : 0;
 
   return (
-    <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4">
+    <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4">
       <div className="flex justify-between items-center mb-2">
         <h3 className="font-semibold text-sm">Milestones</h3>
         {milestones.length > 0 && <span className="font-mono text-xs text-ink/50 dark:text-ink-dark/50">{progress}%</span>}
@@ -172,7 +172,7 @@ function Milestones({ projectId }) {
       </div>
       <form onSubmit={addMilestone} className="flex gap-2">
         <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Add a milestone"
-          className="flex-1 p-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-page dark:bg-pagedark text-sm" />
+          className="flex-1 p-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark text-sm" />
         <button className="px-3 py-2 rounded-lg bg-violet dark:bg-violet-dark text-white text-xs font-semibold">Add</button>
       </form>
       {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
@@ -185,7 +185,7 @@ function ActivityFeed({ projectId }) {
   useEffect(() => { get(`/projects/${projectId}/activity`).then(setActivity).catch(() => setActivity([])); }, [projectId]);
 
   return (
-    <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4">
+    <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4">
       <h3 className="font-semibold text-sm mb-3">Activity</h3>
       {activity.length === 0 ? (
         <p className="text-sm text-ink/50 dark:text-ink-dark/50">Nothing yet.</p>
@@ -226,7 +226,7 @@ function TaskBoard({ projectId, tasks, setTasks, isOwner }) {
     <div>
       <form onSubmit={addTask} className="flex gap-2 mb-4">
         <input value={newTask} onChange={e => setNewTask(e.target.value)} placeholder="Add a task"
-          className="flex-1 p-2.5 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark text-sm" />
+          className="flex-1 p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
         <button className="px-4 py-2.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">Add</button>
       </form>
       {taskError && <p className="text-sm text-red-500 mb-3">{taskError}</p>}
@@ -241,13 +241,13 @@ function TaskBoard({ projectId, tasks, setTasks, isOwner }) {
               const locked = !isOwner && task.status === 'IN_REVIEW';
               const options = isOwner ? COLUMNS : COLUMNS.filter(c => c.key !== 'DONE');
               return (
-                <div key={task.id} className="bg-surface dark:bg-surfacedark border border-ink/10 dark:border-ink-dark/10 rounded-lg p-3 text-sm mb-2">
+                <div key={task.id} className="bg-surface dark:bg-surfacedark border border-ink/20 dark:border-ink-dark/20 rounded-lg p-3 text-sm mb-2">
                   <p>{task.title}</p>
                   {locked ? (
                     <p className="mt-2 text-xs font-mono text-violet-text dark:text-violet-textdark">Awaiting owner review</p>
                   ) : (
                     <select value={task.status} onChange={e => moveTask(task.id, e.target.value)}
-                      className="mt-2 text-xs bg-transparent border border-ink/10 dark:border-ink-dark/10 rounded-md p-1 w-full">
+                      className="mt-2 text-xs bg-transparent border border-ink/20 dark:border-ink-dark/20 rounded-md p-1 w-full">
                       {options.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
                     </select>
                   )}
@@ -274,7 +274,7 @@ function ChatPanel({ projectId, messages, user }) {
   }
 
   return (
-    <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4 flex flex-col h-[340px]">
+    <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4 flex flex-col h-[340px]">
       <h3 className="font-semibold text-sm mb-2">Team chat</h3>
       <div className="flex-1 overflow-y-auto space-y-3">
         {messages.map(m => {
@@ -295,7 +295,7 @@ function ChatPanel({ projectId, messages, user }) {
       </div>
       <div className="flex gap-2 mt-3">
         <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendMessage()}
-          placeholder="Message the team" className="flex-1 p-2 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-page dark:bg-pagedark text-sm" />
+          placeholder="Message the team" className="flex-1 p-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark text-sm" />
         <button onClick={sendMessage} className="px-3 py-2 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">Send</button>
       </div>
     </div>
@@ -339,7 +339,7 @@ export default function Workspace() {
       <h1 className="font-display font-bold text-xl mb-1">{project.title}</h1>
       <p className="text-sm text-ink/50 dark:text-ink-dark/50 mb-4">Workspace</p>
 
-      <div className="flex gap-1 mb-6 border-b border-ink/10 dark:border-ink-dark/10 overflow-x-auto">
+      <div className="flex gap-1 mb-6 border-b border-ink/20 dark:border-ink-dark/20 overflow-x-auto">
         {TABS.map(t => (
           <button
             key={t.key} onClick={() => setTab(t.key)}
@@ -359,7 +359,7 @@ export default function Workspace() {
             </div>
           )}
           {tasks.length > 0 && (
-            <div className="rounded-2xl border border-ink/10 dark:border-ink-dark/10 bg-surface dark:bg-surfacedark p-4">
+            <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold text-sm">Task progress</h3>
                 <span className="font-mono text-xs text-ink/50 dark:text-ink-dark/50">{doneCount}/{tasks.length} done · {taskProgress}%</span>

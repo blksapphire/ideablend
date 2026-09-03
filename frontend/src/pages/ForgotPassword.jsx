@@ -29,7 +29,7 @@ export default function ForgotPassword() {
         <div>
           <p className="text-sm text-ink/70 dark:text-ink-dark/70">{result.message}</p>
           {result.devModeResetLink && (
-            <div className="mt-4 p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark">
+            <div className="mt-4 p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark">
               <p className="text-xs text-ink/50 dark:text-ink-dark/50 mb-2">No email service is configured yet, so here's your link directly:</p>
               <Link to={result.devModeResetLink.replace(/^https?:\/\/[^/]+/, '')} className="text-sm text-violet-text dark:text-violet-textdark break-all">
                 {result.devModeResetLink}
@@ -40,7 +40,7 @@ export default function ForgotPassword() {
       ) : (
         <form onSubmit={submit} className="space-y-3">
           <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="you@example.com"
-            className="w-full p-3 rounded-lg border border-ink/15 dark:border-ink-dark/15 bg-surface dark:bg-surfacedark" />
+            className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button disabled={loading} className="w-full p-3 rounded-lg bg-violet dark:bg-violet-dark text-white font-semibold">
             {loading ? 'Sending…' : 'Send reset link'}
