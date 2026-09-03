@@ -86,7 +86,7 @@ router.get('/discover/featured', asyncHandler(async (req, res) => {
   // messages sent + recent project joins in the last 7 days: "very active"
   // measured as real recent participation, not profile completeness.
   const candidateBuilders = await prisma.user.findMany({
-    where: { OR: [{ openToProjects: true }, { openToCofounder: true }, { openToFreelance: true }] },
+    where: { isBanned: false, OR: [{ openToProjects: true }, { openToCofounder: true }, { openToFreelance: true }] },
     select: { id: true, name: true, headline: true, profilePic: true, userSkills: { include: { skill: true } } },
     take: 60
   });

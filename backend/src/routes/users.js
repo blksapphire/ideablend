@@ -41,7 +41,7 @@ router.get('/', asyncHandler(async (req, res) => {
   const page = Math.max(1, Number(req.query.page) || 1);
   const pageSize = Math.min(50, Math.max(1, Number(req.query.pageSize) || 12));
 
-  const where = {};
+  const where = { isBanned: false };
   if (q) where.OR = [{ name: { contains: q, mode: 'insensitive' } }, { headline: { contains: q, mode: 'insensitive' } }];
   if (skill) where.userSkills = { some: { skill: { name: { equals: skill, mode: 'insensitive' } } } };
 

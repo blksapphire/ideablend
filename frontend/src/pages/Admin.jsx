@@ -55,6 +55,17 @@ function UserManagement() {
     }
   }
 
+  async function removeUser(u) {
+    if (!window.confirm(`Remove ${u.name || u.email}? This scrubs their profile permanently and cannot be undone.`)) return;
+    setError('');
+    try {
+      await post(`/admin/users/${u.id}/remove`, {});
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   return (
     <div className="mt-8">
       <h2 className="font-display font-bold text-lg mb-3">Manage users</h2>
@@ -68,18 +79,29 @@ function UserManagement() {
         {users.map(u => (
           <div key={u.id} className="flex items-center justify-between p-3 text-sm">
             <div>
-              <div className="font-medium">{u.name || 'Unnamed'} {u.isAdmin && <span className="font-mono text-[10px] text-violet-text dark:text-violet-textdark">ADMIN</span>}</div>
+              <div className="font-medium">
+                {u.isRemoved ? 'Removed user' : (u.name || 'Unnamed')}{' '}
+                {u.isAdmin && <span className="font-mono text-[10px] text-violet-text dark:text-violet-textdark">ADMIN</span>}
+                {u.isRemoved && <span className="font-mono text-[10px] text-red-500 ml-1">REMOVED</span>}
+              </div>
               <div className="text-xs text-ink/50 dark:text-ink-dark/50">{u.email}</div>
               <div className="font-mono text-[10px] text-ink/40 dark:text-ink-dark/40 mt-0.5">
                 Last active: {u.lastActiveAt ? new Date(u.lastActiveAt).toLocaleDateString() : 'never'}
               </div>
             </div>
-            <button
-              onClick={() => toggleBan(u)}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-lg ${u.isBanned ? 'bg-teal dark:bg-teal-dark text-white' : 'border border-red-300 text-red-500'}`}
-            >
-              {u.isBanned ? 'Unban' : 'Ban'}
-            </button>
+            {!u.isRemoved && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => toggleBan(u)}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg ${u.isBanned ? 'bg-teal dark:bg-teal-dark text-white' : 'border border-red-300 text-red-500'}`}
+                >
+                  {u.isBanned ? 'Unban' : 'Ban'}
+                </button>
+                <button onClick={() => removeUser(u)} className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500 text-white">
+                  Remove
+                </button>
+              </div>
+            )}
           </div>
         ))}
         {users.length === 0 && <p className="p-3 text-sm text-ink/50 dark:text-ink-dark/50">No users found.</p>}
