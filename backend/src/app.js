@@ -10,6 +10,10 @@ const cors = require('cors');
 // further down in this file, near the static /avatars mount)
 fs.mkdirSync(path.join(__dirname, '..', 'uploads', 'avatars'), { recursive: true });
 
+// temporary diagnostic - remove once the Railway Volume mount path is confirmed
+console.log('[UPLOAD_PATH_CHECK] process.cwd():', process.cwd());
+console.log('[UPLOAD_PATH_CHECK] uploads resolve to:', path.join(__dirname, '..', 'uploads'));
+
 const authRoutes = require('./routes/auth');
 const projectsRoutes = require('./routes/projects');
 const applicationsRoutes = require('./routes/applications');
