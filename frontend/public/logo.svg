@@ -1,6 +1,11 @@
-<svg width="280" height="64" viewBox="0 0 280 64" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="24" cy="26" r="16" fill="#6C4FFF" opacity="0.9" />
-  <circle cx="40" cy="26" r="16" fill="#14C9A6" opacity="0.85" />
-  <circle cx="32" cy="40" r="16" fill="#2F8FFF" opacity="0.85" />
-  <text x="72" y="40" font-family="Unbounded, sans-serif" font-weight="700" font-size="28" fill="#0A0A0B">Idea Blend</text>
+<svg width="320" height="72" viewBox="0 0 320 72" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="blendGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6C4FFF" />
+      <stop offset="55%" stop-color="#2F8FFF" />
+      <stop offset="100%" stop-color="#14C9A6" />
+    </linearGradient>
+  </defs>
+  <rect x="10" y="18" width="36" height="36" rx="11" fill="url(#blendGrad2)" opacity="0.92" transform="rotate(45 28 36)" />
+  <text x="46" y="48" font-family="Unbounded, Arial, sans-serif" font-weight="800" font-size="34" fill="#101B3D">IDEA BLEND</text>
 </svg>
