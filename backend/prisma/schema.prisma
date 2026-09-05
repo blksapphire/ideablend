@@ -84,6 +84,26 @@ enum AvailabilityBand {
   FULL_TIME
 }
 
+enum NotificationType {
+  APPLICATION_RECEIVED
+  APPLICATION_ACCEPTED
+  APPLICATION_REJECTED
+  MEMBER_JOINED
+  MEMBER_REMOVED
+  FRIEND_REQUEST
+  FRIEND_ACCEPTED
+  TASK_ASSIGNED
+  MESSAGE_RECEIVED
+  MILESTONE_COMPLETED
+  PROJECT_COMPLETED
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
 model User {
   id            Int       @id @default(autoincrement())
   email         String    @unique
@@ -121,11 +141,50 @@ model User {
   reviewsReceived Review[] @relation("ReviewsReceived")
   activities      Activity[]
   resetTokens     PasswordResetToken[]
+  notifications   Notification[]
+  
+  // Friendships: both sides stored (user1->user2 and user2->user1 if accepted)
+  friendRequestsSent     Friendship[] @relation("FriendshipRequester")
+  friendRequestsReceived Friendship[] @relation("FriendshipReceiver")
+  
   // completedProjects, responseRate, averageRating are intentionally NOT
   // stored here - they're computed on read in userStats.js from actual
   // project/application/membership/review data, same as Role.filledSlots. A
   // stored counter needs something to update it on every relevant event; a
   // computed value can never go stale.
+}
+
+model Notification {
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  relatedUserId  Int?          // who triggered the notification
+  relatedProjectId Int?        // which project it relates to
+  read      Boolean           @default(false)
+  readAt    DateTime?
+  createdAt DateTime          @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Friendship {
+  id        Int               @id @default(autoincrement())
+  requesterId Int
+  requester User              @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  
+  receiverId Int
+  receiver  User              @relation("FriendshipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  status    FriendshipStatus  @default(PENDING)
+  createdAt DateTime          @default(now())
+  acceptedAt DateTime?
+
+  @@unique([requesterId, receiverId]) // prevent duplicate requests
+  @@index([status])
 }
 
 model Project {
