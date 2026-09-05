@@ -1,116 +1,218 @@
 const express = require('express');
-const prisma = require('../prisma');
-const { asyncHandler } = require('../lib/asyncHandler');
-
+const { PrismaClient } = require('@prisma/client');
 const router = express.Router();
+const prisma = new PrismaClient();
+const asyncHandler = require('../lib/asyncHandler');
+const { authenticateToken } = require('../lib/auth');
 
-const FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
-const FEATURED_COUNT = 4;
-const CANDIDATE_POOL_SIZE = 20;
-
-// deterministic PRNG (mulberry32) - the same seed always produces the same
-// shuffle order. Seeding with the current 4-hour time bucket means every
-// request in the same window gets the identical featured set, and it
-// changes automatically when the bucket rolls over - no cron job needed.
-function mulberry32(seed) {
-  return function () {
-    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-function seededShuffle(arr, seed) {
-  const rand = mulberry32(seed);
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-router.get('/discover/featured', asyncHandler(async (req, res) => {
-  const bucket = Math.floor(Date.now() / FOUR_HOURS_MS);
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-
-  // ---- featured projects ----
-  // criteria: publicly visible, still recruiting or active, and still has at
-  // least one open role (no point featuring something fully staffed).
-  // score = recency (fades over ~2 weeks) + recent momentum (applications/
-  // messages/tasks in the last 7 days) - this favors projects that are both
-  // new AND currently getting real activity, not just old popular ones.
-  const candidateProjects = await prisma.project.findMany({
-    where: { visibility: 'PUBLIC', status: { in: ['RECRUITING', 'ACTIVE'] } },
-    include: {
-      owner: { select: { id: true, name: true, profilePic: true } },
-      roles: { include: { memberships: { where: { active: true } } } }
+// Personalized Discover: Get recommended projects based on user profile
+router.get('/discover/projects', authenticateToken, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  
+  // Get user's profile
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { userSkills: { include: { skill: true } } }
+  });
+  
+  const userSkillIds = user.userSkills.map(us => us.skillId);
+  
+  // Get projects where user:
+  // 1. hasn't already applied or joined
+  // 2. status is RECRUITING
+  // 3. has matching skills with roles
+  // 4. availability and commitment type align
+  
+  const projects = await prisma.project.findMany({
+    where: {
+      status: 'RECRUITING',
+      AND: [
+        {
+          applications: {
+            none: { userId }
+          }
+        },
+        {
+          memberships: {
+            none: { userId }
+          }
+        }
+      ]
     },
-    orderBy: { createdAt: 'desc' },
-    take: 60
+    include: {
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          profilePic: true,
+          headline: true
+        }
+      },
+      roles: {
+        include: {
+          roleSkills: {
+            include: { skill: true }
+          },
+          memberships: true,
+          applications: true
+        }
+      }
+    },
+    skip,
+    take: parseInt(limit) || 10
   });
-  const projectIds = candidateProjects.map(p => p.id);
-
-  const [recentApps, recentMsgs, recentTasks] = await Promise.all([
-    prisma.application.groupBy({ by: ['projectId'], where: { projectId: { in: projectIds }, createdAt: { gte: sevenDaysAgo } }, _count: true }),
-    prisma.message.groupBy({ by: ['projectId'], where: { projectId: { in: projectIds }, createdAt: { gte: sevenDaysAgo } }, _count: true }),
-    prisma.task.groupBy({ by: ['projectId'], where: { projectId: { in: projectIds }, createdAt: { gte: sevenDaysAgo } }, _count: true })
-  ]);
-  const appMap = Object.fromEntries(recentApps.map(r => [r.projectId, r._count]));
-  const msgMap = Object.fromEntries(recentMsgs.map(r => [r.projectId, r._count]));
-  const taskMap = Object.fromEntries(recentTasks.map(r => [r.projectId, r._count]));
-
-  const scoredProjects = candidateProjects
-    .map(p => {
-      const totalSlots = p.roles.reduce((s, r) => s + r.slots, 0);
-      const filledSlots = p.roles.reduce((s, r) => s + r.memberships.length, 0);
-      const hasOpenRole = filledSlots < totalSlots;
-      const ageDays = (Date.now() - new Date(p.createdAt).getTime()) / (1000 * 60 * 60 * 24);
-      const recencyScore = Math.max(0, 14 - ageDays);
-      const momentumScore = (appMap[p.id] || 0) * 2 + (msgMap[p.id] || 0) * 0.5 + (taskMap[p.id] || 0);
-      return { project: p, score: recencyScore + momentumScore, hasOpenRole };
-    })
-    .filter(s => s.hasOpenRole)
-    .sort((a, b) => b.score - a.score);
-
-  const projectPool = scoredProjects.slice(0, CANDIDATE_POOL_SIZE).map(s => ({
-    ...s.project,
-    roles: s.project.roles.map(r => ({ ...r, filledSlots: r.memberships.length }))
-  }));
-  const featuredProjects = seededShuffle(projectPool, bucket).slice(0, FEATURED_COUNT);
-
-  // ---- featured builders ----
-  // criteria: only people who've actually opened themselves up to being
-  // found (open to projects/co-founding/freelance) - featuring someone who
-  // didn't ask to be found is the wrong kind of "active". Scored by recent
-  // messages sent + recent project joins in the last 7 days: "very active"
-  // measured as real recent participation, not profile completeness.
-  const candidateBuilders = await prisma.user.findMany({
-    where: { isBanned: false, OR: [{ openToProjects: true }, { openToCofounder: true }, { openToFreelance: true }] },
-    select: { id: true, name: true, headline: true, profilePic: true, userSkills: { include: { skill: true } } },
-    take: 60
+  
+  // Score projects based on skill match, availability, commitment
+  const scoredProjects = projects.map(project => {
+    let score = 0;
+    
+    // Score based on role skill matches
+    project.roles.forEach(role => {
+      const matchingSkills = role.roleSkills.filter(rs => userSkillIds.includes(rs.skillId));
+      score += matchingSkills.length * 10; // 10 points per matching skill
+      
+      // Bonus if user meets experience level
+      if (role.experience === 'ANY') score += 5;
+      if (role.experience === 'JUNIOR' && !user.isAdmin) score += 3;
+      if (role.experience === 'MID') score += 5;
+      if (role.experience === 'SENIOR') score += 8;
+      
+      // Score based on availability match
+      if (role.commitment === 'VOLUNTEER' && user.availability === 'HOURS_5_10') score += 8;
+      if (role.commitment === 'PAID' && user.openToEmployment) score += 10;
+      if (role.commitment === 'EQUITY' && user.openToCofounder) score += 10;
+      
+      // Availability band match
+      if (role.commitment === 'FULL_TIME' && user.availability === 'FULL_TIME') score += 8;
+      if (role.commitment === 'HOURS_20_40' && ['HOURS_20_40', 'FULL_TIME'].includes(user.availability)) score += 6;
+    });
+    
+    // Bonus for projects in early stages (more room to grow)
+    if (project.stage === 'IDEA') score += 3;
+    if (project.stage === 'PLANNING') score += 2;
+    
+    return { ...project, _score: score };
   });
-  const builderIds = candidateBuilders.map(u => u.id);
-
-  const [recentMessageCounts, recentJoins] = await Promise.all([
-    prisma.message.groupBy({ by: ['authorId'], where: { authorId: { in: builderIds }, createdAt: { gte: sevenDaysAgo } }, _count: true }),
-    prisma.membership.groupBy({ by: ['userId'], where: { userId: { in: builderIds }, joinedAt: { gte: sevenDaysAgo } }, _count: true })
-  ]);
-  const recentMsgMap = Object.fromEntries(recentMessageCounts.map(r => [r.authorId, r._count]));
-  const recentJoinMap = Object.fromEntries(recentJoins.map(r => [r.userId, r._count]));
-
-  const scoredBuilders = candidateBuilders
-    .map(u => ({ user: u, score: (recentMsgMap[u.id] || 0) + (recentJoinMap[u.id] || 0) * 3 }))
-    .sort((a, b) => b.score - a.score);
-
-  const builderPool = scoredBuilders.slice(0, CANDIDATE_POOL_SIZE).map(s => s.user);
-  // offset seed by 1 so the builder shuffle order isn't identical to the project shuffle
-  const featuredBuilders = seededShuffle(builderPool, bucket + 1).slice(0, FEATURED_COUNT);
-
+  
+  // Sort by score descending
+  const sorted = scoredProjects.sort((a, b) => b._score - a._score);
+  
   res.json({
-    projects: featuredProjects,
-    builders: featuredBuilders,
-    rotatesAt: (bucket + 1) * FOUR_HOURS_MS
+    projects: sorted.map(p => {
+      const { _score, ...project } = p;
+      return { ...project, matchScore: _score };
+    }),
+    page,
+    limit,
+    total: sorted.length
+  });
+}));
+
+// Personalized Discover: Get recommended builders based on user profile
+router.get('/discover/builders', authenticateToken, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  
+  // Get user's profile
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { userSkills: { include: { skill: true } } }
+  });
+  
+  const userSkillIds = user.userSkills.map(us => us.skillId);
+  
+  // Find users who:
+  // 1. are open to projects/cofounder/freelance/employment
+  // 2. are not already friends
+  // 3. have complementary skills
+  // 4. are not the current user
+  // 5. are not banned/removed
+  
+  const builders = await prisma.user.findMany({
+    where: {
+      id: { not: userId },
+      isRemoved: false,
+      isBanned: false,
+      OR: [
+        { openToProjects: true },
+        { openToCofounder: true },
+        { openToFreelance: true },
+        { openToEmployment: true }
+      ]
+    },
+    include: {
+      userSkills: { include: { skill: true } },
+      ownedProjects: true,
+      memberships: true
+    },
+    skip,
+    take: parseInt(limit) || 10
+  });
+  
+  // Score builders based on:
+  // 1. Skill overlap with user
+  // 2. Complementary skills (skills user doesn't have)
+  // 3. Active projects they're involved in
+  // 4. Profile completeness
+  
+  const scoredBuilders = builders.map(builder => {
+    let score = 0;
+    const builderSkillIds = builder.userSkills.map(us => us.skillId);
+    
+    // Matching skills
+    const matchingSkills = builderSkillIds.filter(id => userSkillIds.includes(id));
+    score += matchingSkills.length * 8;
+    
+    // Complementary skills (they have, user doesn't)
+    const complementarySkills = builderSkillIds.filter(id => !userSkillIds.includes(id));
+    score += complementarySkills.length * 5;
+    
+    // Active project involvement
+    score += builder.memberships.length * 3;
+    score += builder.ownedProjects.length * 5;
+    
+    // Profile completeness bonus
+    if (builder.name) score += 2;
+    if (builder.profilePic) score += 2;
+    if (builder.headline) score += 2;
+    if (builder.bio) score += 2;
+    if (builder.location) score += 1;
+    
+    // Availability bonus
+    if (builder.openToCofounder) score += 8;
+    if (builder.openToProjects) score += 5;
+    
+    return { ...builder, _score: score };
+  });
+  
+  // Sort by score descending
+  const sorted = scoredBuilders.sort((a, b) => b._score - a._score);
+  
+  res.json({
+    builders: sorted.map(b => {
+      const { _score, ...builder } = b;
+      return {
+        id: builder.id,
+        name: builder.name,
+        profilePic: builder.profilePic,
+        headline: builder.headline,
+        bio: builder.bio,
+        location: builder.location,
+        skills: builder.userSkills.map(us => ({ id: us.skill.id, name: us.skill.name, level: us.level })),
+        projectsCount: builder.ownedProjects.length + builder.memberships.length,
+        openToProjects: builder.openToProjects,
+        openToCofounder: builder.openToCofounder,
+        openToFreelance: builder.openToFreelance,
+        openToEmployment: builder.openToEmployment,
+        matchScore: _score
+      };
+    }),
+    page,
+    limit,
+    total: sorted.length
   });
 }));
 
