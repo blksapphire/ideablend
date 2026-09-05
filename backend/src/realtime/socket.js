@@ -1,6 +1,8 @@
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const prisma = require('../prisma');
+const { notify } = require('../lib/notify');
+const { getOtherMemberIds } = require('../lib/projectAccess');
 
 async function isProjectMember(projectId, userId) {
   const project = await prisma.project.findUnique({ where: { id: projectId } });
@@ -53,6 +55,13 @@ function setupSocket(server) {
           include: { author: { select: { id: true, name: true, profilePic: true } } }
         });
         io.to(`project_${projectId}`).emit('message', m);
+
+        const otherIds = await getOtherMemberIds(projectId, socket.userId);
+        await Promise.all(otherIds.map(uid => notify(prisma, {
+          userId: uid, type: 'NEW_MESSAGE',
+          message: `${m.author?.name || 'Someone'}: ${content.slice(0, 60)}`,
+          link: `/projects/${projectId}/workspace`
+        })));
       } catch (err) {
         console.error(err);
         socket.emit('error', { error: 'could not send message' });

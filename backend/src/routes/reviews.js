@@ -3,6 +3,7 @@ const prisma = require('../prisma');
 const { requireAuth } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../lib/asyncHandler');
 const { requireIntParam } = require('../lib/validate');
+const { notify } = require('../lib/notify');
 
 const router = express.Router();
 
@@ -51,6 +52,11 @@ router.post('/projects/:projectId/reviews', requireAuth, asyncHandler(async (req
   try {
     const review = await prisma.review.create({
       data: { projectId, reviewerId: req.user.id, revieweeId: targetId, rating: ratingNum, comment }
+    });
+    await notify(prisma, {
+      userId: targetId, type: 'REVIEW_RECEIVED',
+      message: `${req.user.name || 'Someone'} left you a ${ratingNum}-star review`,
+      link: `/profile`
     });
     res.json(review);
   } catch (err) {

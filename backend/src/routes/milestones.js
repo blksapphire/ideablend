@@ -3,8 +3,9 @@ const prisma = require('../prisma');
 const { requireAuth } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../lib/asyncHandler');
 const { requireIntParam, requireFields } = require('../lib/validate');
-const { assertMember } = require('../lib/projectAccess');
+const { assertMember, getOtherMemberIds } = require('../lib/projectAccess');
 const { logActivity } = require('../lib/activity');
+const { notify } = require('../lib/notify');
 
 const router = express.Router();
 
@@ -59,6 +60,16 @@ router.patch('/milestones/:id', requireAuth, asyncHandler(async (req, res) => {
     }
     return [m];
   });
+
+  if (willComplete) {
+    const otherIds = await getOtherMemberIds(milestone.projectId, req.user.id);
+    await Promise.all(otherIds.map(uid => notify(prisma, {
+      userId: uid, type: 'MILESTONE_COMPLETED',
+      message: `${req.user.name || 'Someone'} completed milestone "${updated.title}"`,
+      link: `/projects/${milestone.projectId}/workspace`
+    })));
+  }
+
   res.json(updated);
 }));
 

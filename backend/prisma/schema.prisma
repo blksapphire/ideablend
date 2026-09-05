@@ -121,6 +121,7 @@ model User {
   reviewsReceived Review[] @relation("ReviewsReceived")
   activities      Activity[]
   resetTokens     PasswordResetToken[]
+  notifications   Notification[]
   // completedProjects, responseRate, averageRating are intentionally NOT
   // stored here - they're computed on read in userStats.js from actual
   // project/application/membership/review data, same as Role.filledSlots. A
@@ -310,5 +311,30 @@ model PasswordResetToken {
   token     String   @unique
   expiresAt DateTime
   used      Boolean  @default(false)
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
+}
+
+enum NotificationType {
+  APPLICATION_RECEIVED
+  APPLICATION_ACCEPTED
+  APPLICATION_REJECTED
+  MEMBER_JOINED
+  MEMBER_REMOVED
+  ROLE_REASSIGNED
+  TASK_COMPLETED
+  MILESTONE_COMPLETED
+  PROJECT_COMPLETED
+  REVIEW_RECEIVED
+  NEW_MESSAGE
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  message   String
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
 }
