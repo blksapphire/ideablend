@@ -5,6 +5,7 @@ const { asyncHandler } = require('../lib/asyncHandler');
 const { requireIntParam } = require('../lib/validate');
 const { activateMembership } = require('../lib/membership');
 const { logActivity } = require('../lib/activity');
+const { notify } = require('../lib/notify');
 
 const router = express.Router();
 
@@ -46,6 +47,12 @@ router.post('/memberships/:id/reassign', requireAuth, asyncHandler(async (req, r
     return activateMembership(tx, { projectId: membership.projectId, roleId: targetRole.id, userId: membership.userId });
   });
 
+  await notify(prisma, {
+    userId: membership.userId, type: 'ROLE_REASSIGNED',
+    message: `You were moved to ${targetRole.name}`,
+    link: `/projects/${membership.projectId}/workspace`
+  });
+
   res.json(newMembership);
 }));
 
@@ -62,6 +69,11 @@ router.delete('/memberships/:id', requireAuth, asyncHandler(async (req, res) => 
     const m = await tx.membership.update({ where: { id }, data: { active: false } });
     await logActivity(tx, { projectId: membership.projectId, actorId: req.user.id, type: 'MEMBER_REMOVED', message: `${membership.user?.name || 'A member'} was removed from a role` });
     return [m];
+  });
+  await notify(prisma, {
+    userId: membership.userId, type: 'MEMBER_REMOVED',
+    message: `You were removed from a role on a project`,
+    link: `/my-projects`
   });
   res.json(updated);
 }));
@@ -83,6 +95,9 @@ router.post('/projects/:projectId/members/:userId/remove', requireAuth, asyncHan
     }
     return [r];
   });
+  if (result.count > 0) {
+    await notify(prisma, { userId, type: 'MEMBER_REMOVED', message: 'You were removed from a project', link: '/my-projects' });
+  }
   res.json({ removed: result.count });
 }));
 

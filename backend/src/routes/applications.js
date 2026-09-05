@@ -5,6 +5,7 @@ const { asyncHandler } = require('../lib/asyncHandler');
 const { requireIntParam } = require('../lib/validate');
 const { activateMembership } = require('../lib/membership');
 const { logActivity } = require('../lib/activity');
+const { notify } = require('../lib/notify');
 
 const router = express.Router();
 
@@ -31,9 +32,17 @@ router.post('/projects/:projectId/roles/:roleId/apply', requireAuth, asyncHandle
   const existing = await prisma.application.findUnique({ where: { roleId_userId: { roleId, userId: req.user.id } } });
   if (existing) return res.status(400).json({ error: 'already applied to this role' });
 
+  const project = await prisma.project.findUnique({ where: { id: projectId } });
   const application = await prisma.application.create({
     data: { projectId, roleId, userId: req.user.id, message }
   });
+
+  await notify(prisma, {
+    userId: project.ownerId, type: 'APPLICATION_RECEIVED',
+    message: `${req.user.name || 'Someone'} applied for ${role.name}`,
+    link: `/projects/${projectId}/applications`
+  });
+
   res.json(application);
 }));
 
@@ -69,23 +78,33 @@ router.post('/applications/:id/accept', requireAuth, asyncHandler(async (req, re
   }
 
   const updated = await prisma.application.update({ where: { id }, data: { status: 'ACCEPTED' } });
+  await notify(prisma, {
+    userId: application.userId, type: 'APPLICATION_ACCEPTED',
+    message: `You were accepted for ${application.role.name} on ${application.project.title}`,
+    link: `/my-applications`
+  });
   res.json(updated);
 }));
 
 router.post('/applications/:id/reject', requireAuth, asyncHandler(async (req, res) => {
   const id = requireIntParam(req.params.id, 'application id');
-  const application = await prisma.application.findUnique({ where: { id }, include: { project: true } });
+  const application = await prisma.application.findUnique({ where: { id }, include: { project: true, role: true } });
   if (!application) return res.status(404).json({ error: 'not found' });
   if (application.project.ownerId !== req.user.id) return res.status(403).json({ error: 'not owner' });
 
   const updated = await prisma.application.update({ where: { id }, data: { status: 'REJECTED' } });
+  await notify(prisma, {
+    userId: application.userId, type: 'APPLICATION_REJECTED',
+    message: `Your application for ${application.role.name} on ${application.project.title} wasn't accepted`,
+    link: `/my-applications`
+  });
   res.json(updated);
 }));
 
 // applicant confirms an ACCEPTED application -> creates the Membership (the confirmation step)
 router.post('/applications/:id/confirm', requireAuth, asyncHandler(async (req, res) => {
   const id = requireIntParam(req.params.id, 'application id');
-  const application = await prisma.application.findUnique({ where: { id }, include: { role: { include: { memberships: { where: { active: true } } } } } });
+  const application = await prisma.application.findUnique({ where: { id }, include: { project: true, role: { include: { memberships: { where: { active: true } } } } } });
   if (!application) return res.status(404).json({ error: 'not found' });
   if (application.userId !== req.user.id) return res.status(403).json({ error: 'not your application' });
   if (application.status !== 'ACCEPTED') return res.status(400).json({ error: `cannot confirm from status ${application.status}` });
@@ -104,6 +123,12 @@ router.post('/applications/:id/confirm', requireAuth, asyncHandler(async (req, r
   });
 
   res.json({ application: updatedApp, membership });
+
+  notify(prisma, {
+    userId: application.project.ownerId, type: 'MEMBER_JOINED',
+    message: `${req.user.name || 'Someone'} joined as ${application.role.name}`,
+    link: `/projects/${application.projectId}/workspace`
+  }).catch(() => {});
 }));
 
 // applicant withdraws before the process completes

@@ -4,6 +4,8 @@ const { requireAuth, optionalAuth } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../lib/asyncHandler');
 const { requireIntParam, requireFields } = require('../lib/validate');
 const { logActivity } = require('../lib/activity');
+const { notify } = require('../lib/notify');
+const { getOtherMemberIds } = require('../lib/projectAccess');
 
 const router = express.Router();
 
@@ -187,6 +189,16 @@ router.patch('/:id', requireAuth, asyncHandler(async (req, res) => {
     }
     return [p];
   });
+
+  if (willComplete) {
+    const otherIds = await getOtherMemberIds(id, req.user.id);
+    await Promise.all(otherIds.map(uid => notify(prisma, {
+      userId: uid, type: 'PROJECT_COMPLETED',
+      message: `${updated.title} was marked as completed`,
+      link: `/projects/${id}/workspace`
+    })));
+  }
+
   res.json(updated);
 }));
 

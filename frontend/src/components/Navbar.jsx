@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Avatar } from './BlendRings';
+import NotificationBell from './NotificationBell';
 
 function BlendLogo() {
   return (
@@ -55,6 +56,7 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          {user && <NotificationBell />}
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
