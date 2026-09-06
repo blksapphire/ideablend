@@ -45,6 +45,16 @@ function UserManagement() {
 
   useEffect(() => { load(); }, []);
 
+  async function toggleVerify(u) {
+    setError('');
+    try {
+      await post(`/admin/users/${u.id}/${u.isVerified ? 'unverify' : 'verify'}`, {});
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function toggleBan(u) {
     setError('');
     try {
@@ -82,6 +92,7 @@ function UserManagement() {
               <div className="font-medium">
                 {u.isRemoved ? 'Removed user' : (u.name || 'Unnamed')}{' '}
                 {u.isAdmin && <span className="font-mono text-[10px] text-violet-text dark:text-violet-textdark">ADMIN</span>}
+                {u.isVerified && <span className="font-mono text-[10px] text-sky-text dark:text-sky-textdark ml-1">VERIFIED</span>}
                 {u.isRemoved && <span className="font-mono text-[10px] text-red-500 ml-1">REMOVED</span>}
               </div>
               <div className="text-xs text-ink/50 dark:text-ink-dark/50">{u.email}</div>
@@ -91,6 +102,12 @@ function UserManagement() {
             </div>
             {!u.isRemoved && (
               <div className="flex gap-2">
+                <button
+                  onClick={() => toggleVerify(u)}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg ${u.isVerified ? 'bg-sky dark:bg-sky-dark text-white' : 'border border-sky/40 dark:border-sky-dark/40 text-sky-text dark:text-sky-textdark'}`}
+                >
+                  {u.isVerified ? 'Unverify' : 'Verify'}
+                </button>
                 <button
                   onClick={() => toggleBan(u)}
                   className={`text-xs font-semibold px-3 py-1.5 rounded-lg ${u.isBanned ? 'bg-teal dark:bg-teal-dark text-white' : 'border border-red-300 text-red-500'}`}

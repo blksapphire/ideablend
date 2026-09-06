@@ -59,7 +59,7 @@ router.get('/users', requireAuth, requireAdmin, asyncHandler(async (req, res) =>
   const [users, total] = await Promise.all([
     prisma.user.findMany({
       where,
-      select: { id: true, email: true, name: true, isAdmin: true, isBanned: true, isRemoved: true, createdAt: true, lastActiveAt: true },
+      select: { id: true, email: true, name: true, isAdmin: true, isBanned: true, isRemoved: true, isVerified: true, createdAt: true, lastActiveAt: true },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * pageSize,
       take: pageSize
@@ -75,6 +75,18 @@ router.get('/users', requireAuth, requireAdmin, asyncHandler(async (req, res) =>
 // so a real delete would fail (or, if forced through, silently destroy
 // other people's project history). Banning blocks login/API access via
 // requireAuth without touching any of that data.
+router.post('/users/:id/verify', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const id = Number(req.params.id);
+  const updated = await prisma.user.update({ where: { id }, data: { isVerified: true }, select: { id: true, email: true, isVerified: true } });
+  res.json(updated);
+}));
+
+router.post('/users/:id/unverify', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const id = Number(req.params.id);
+  const updated = await prisma.user.update({ where: { id }, data: { isVerified: false }, select: { id: true, email: true, isVerified: true } });
+  res.json(updated);
+}));
+
 router.post('/users/:id/ban', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
   if (id === req.user.id) return res.status(400).json({ error: "can't ban yourself" });

@@ -18,7 +18,8 @@ const NAV_LINKS = [
   { to: '/explore', label: 'Discover', authOnly: false },
   { to: '/create', label: 'Create project', authOnly: true },
   { to: '/my-projects', label: 'My projects', authOnly: true },
-  { to: '/my-applications', label: 'My applications', authOnly: true }
+  { to: '/my-applications', label: 'My applications', authOnly: true },
+  { to: '/notifications', label: 'Notifications', authOnly: true }
 ];
 
 export default function Navbar() {

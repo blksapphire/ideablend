@@ -15,6 +15,15 @@ function initials(name) {
 // shared circle avatar: real photo if the user has one, initials on a
 // colored background otherwise. Used everywhere a person shows up - role
 // rings, chat, roster, nav.
+export function VerifiedBadge({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className="text-violet dark:text-violet-dark inline-block" title="Verified">
+      <path d="M12 2l2.2 2.2 3-.7 1 3 3 1-.7 3L22 12l-2.2 2.2.7 3-3 1-1 3-3-.7L12 22l-2.2-2.2-3 .7-1-3-3-1 .7-3L2 12l2.2-2.2-.7-3 3-1 1-3 3 .7z" />
+      <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function Avatar({ user, size = 28, colorIndex = 0 }) {
   const dim = `${size}px`;
   const url = avatarUrl(user?.profilePic);

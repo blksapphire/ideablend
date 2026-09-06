@@ -3,7 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const multer = require('multer');
 const prisma = require('../prisma');
-const { requireAuth } = require('../middlewares/authMiddleware');
+const { requireAuth, optionalAuth } = require('../middlewares/authMiddleware');
 const { getUserStats } = require('../lib/userStats');
 const { asyncHandler } = require('../lib/asyncHandler');
 const { requireIntParam } = require('../lib/validate');
@@ -28,10 +28,11 @@ const uploadAvatar = multer({
 const PUBLIC_SELECT = {
   id: true, name: true, headline: true, bio: true, skills: true,
   githubUrl: true, portfolioUrl: true, linkedinUrl: true, websiteUrl: true,
-  location: true, timezone: true, profilePic: true,
+  location: true, timezone: true, profilePic: true, isVerified: true,
   openToProjects: true, openToCofounder: true, openToFreelance: true, openToEmployment: true,
   availability: true,
-  userSkills: { include: { skill: true } }
+  userSkills: { include: { skill: true } },
+  _count: { select: { followers: true, following: true } }
 };
 
 // search/browse builders by name, headline, or skill - public, no auth
@@ -146,12 +147,19 @@ router.delete('/me/skills/:skillId', requireAuth, asyncHandler(async (req, res) 
 }));
 
 // public view of another builder's profile
-router.get('/:id', asyncHandler(async (req, res) => {
+router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
   const id = requireIntParam(req.params.id, 'user id');
   const user = await prisma.user.findUnique({ where: { id }, select: PUBLIC_SELECT });
   if (!user) return res.status(404).json({ error: 'not found' });
   const stats = await getUserStats(id);
-  res.json({ ...user, stats });
+
+  let isFollowing = false;
+  if (req.user) {
+    const follow = await prisma.follow.findUnique({ where: { followerId_followingId: { followerId: req.user.id, followingId: id } } });
+    isFollowing = !!follow;
+  }
+
+  res.json({ ...user, stats, isFollowing });
 }));
 
 module.exports = router;

@@ -22,6 +22,12 @@ export default function EditProject() {
   const [addingRole, setAddingRole] = useState(false);
   const [roleError, setRoleError] = useState('');
 
+  const [inviteQuery, setInviteQuery] = useState('');
+  const [inviteResults, setInviteResults] = useState([]);
+  const [inviteRoleId, setInviteRoleId] = useState('');
+  const [inviteMessage, setInviteMessage] = useState('');
+  const [inviteError, setInviteError] = useState('');
+
   function load() {
     get(`/projects/${id}`).then(data => {
       setProject(data);
@@ -74,6 +80,25 @@ export default function EditProject() {
       load();
     } catch (err) {
       setRoleError(err.message);
+    }
+  }
+
+  async function searchInvitees(e) {
+    e.preventDefault();
+    if (!inviteQuery.trim()) return setInviteResults([]);
+    const data = await get(`/users?q=${encodeURIComponent(inviteQuery)}&pageSize=8`);
+    setInviteResults(data.users || []);
+  }
+
+  async function sendInvite(userId) {
+    setInviteError('');
+    if (!inviteRoleId) return setInviteError('Pick a role first.');
+    try {
+      await post(`/projects/${id}/invite`, { userId, roleId: Number(inviteRoleId) });
+      setInviteMessage('Invite sent.');
+      setTimeout(() => setInviteMessage(''), 2500);
+    } catch (err) {
+      setInviteError(err.message);
     }
   }
 
@@ -160,6 +185,37 @@ export default function EditProject() {
             + Add a role vacancy
           </button>
         )}
+      </div>
+
+      <div className="mt-8">
+        <h3 className="font-semibold text-sm mb-3">Invite people</h3>
+        <select value={inviteRoleId} onChange={e => setInviteRoleId(e.target.value)}
+          className="w-full p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm mb-2">
+          <option value="">Invite to which role?</option>
+          {project.roles.map(r => <option key={r.id} value={r.id}>{r.name} ({r.filledSlots}/{r.slots})</option>)}
+        </select>
+        <form onSubmit={searchInvitees} className="flex gap-2 mb-3">
+          <input value={inviteQuery} onChange={e => setInviteQuery(e.target.value)} placeholder="Search by name or email"
+            className="flex-1 p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
+          <button className="px-4 py-2.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">Search</button>
+        </form>
+        {inviteResults.length > 0 && (
+          <div className="space-y-2 mb-2">
+            {inviteResults.map(u => (
+              <div key={u.id} className="flex items-center justify-between p-2.5 rounded-lg border border-ink/20 dark:border-ink-dark/20 text-sm">
+                <div>
+                  <span className="font-medium">{u.name || 'Unnamed'}</span>
+                  {u.headline && <span className="text-xs text-ink/50 dark:text-ink-dark/50 ml-2">{u.headline}</span>}
+                </div>
+                <button onClick={() => sendInvite(u.id)} className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-teal dark:bg-teal-dark text-white">
+                  Invite
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {inviteMessage && <p className="text-sm text-teal-text dark:text-teal-textdark">{inviteMessage}</p>}
+        {inviteError && <p className="text-sm text-red-500">{inviteError}</p>}
       </div>
     </div>
   );

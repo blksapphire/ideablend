@@ -107,6 +107,7 @@ model User {
   isAdmin       Boolean   @default(false)
   isBanned      Boolean   @default(false)
   isRemoved     Boolean   @default(false)
+  isVerified    Boolean   @default(false)
   lastActiveAt  DateTime?
   createdAt     DateTime  @default(now())
 
@@ -122,6 +123,8 @@ model User {
   activities      Activity[]
   resetTokens     PasswordResetToken[]
   notifications   Notification[]
+  following       Follow[] @relation("Following")
+  followers       Follow[] @relation("Followers")
   // completedProjects, responseRate, averageRating are intentionally NOT
   // stored here - they're computed on read in userStats.js from actual
   // project/application/membership/review data, same as Role.filledSlots. A
@@ -326,6 +329,8 @@ enum NotificationType {
   PROJECT_COMPLETED
   REVIEW_RECEIVED
   NEW_MESSAGE
+  PROJECT_INVITE
+  NEW_FOLLOWER
 }
 
 model Notification {
@@ -337,4 +342,15 @@ model Notification {
   link      String?
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
+}
+
+model Follow {
+  id          Int      @id @default(autoincrement())
+  followerId  Int
+  follower    User     @relation("Following", fields: [followerId], references: [id])
+  followingId Int
+  following   User     @relation("Followers", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
 }

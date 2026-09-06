@@ -3,7 +3,13 @@
 @tailwind utilities;
 
 body {
-  @apply bg-page dark:bg-pagedark text-ink dark:text-ink-dark font-sans;
+  @apply text-ink dark:text-ink-dark font-sans;
+  background: linear-gradient(160deg, #F4F4F5 0%, #EDF1FB 45%, #F4F4F5 100%);
+  min-height: 100vh;
+}
+
+.dark body {
+  background: linear-gradient(160deg, #17171A 0%, #1B1830 45%, #17171A 100%);
 }
 
 h1, h2, h3, .font-display {
