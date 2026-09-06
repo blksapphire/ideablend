@@ -2,10 +2,39 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { get } from '../lib/api';
 import ProjectCard from '../components/ProjectCard';
-import { Avatar } from '../components/BlendRings';
+import { Avatar, VerifiedBadge } from '../components/BlendRings';
+import { useAuth } from '../context/AuthContext';
 
 const CATEGORIES = ['fintech', 'ai-ml', 'mobile', 'design', 'web'];
 const PAGE_SIZE = 12;
+
+function RecommendedForYou({ user }) {
+  const [recs, setRecs] = useState(null);
+
+  useEffect(() => {
+    if (!user) return;
+    get('/discover/for-you').then(setRecs).catch(() => setRecs([]));
+  }, [user]);
+
+  if (!user || !recs || recs.length === 0) return null;
+
+  return (
+    <div className="mb-10">
+      <div className="flex items-center gap-2 mb-3">
+        <h2 className="font-display font-bold text-lg">Recommended for you</h2>
+        <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark">SMART MATCH</span>
+      </div>
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {recs.map(p => (
+          <div key={p.id}>
+            <ProjectCard project={p} />
+            {p.matchReason && <p className="text-xs text-ink/50 dark:text-ink-dark/50 mt-1 px-1">{p.matchReason}</p>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function FeaturedSection() {
   const [featured, setFeatured] = useState(null);
@@ -33,7 +62,7 @@ function FeaturedSection() {
                 <div className="flex items-center gap-2">
                   <Avatar user={b} size={36} />
                   <div>
-                    <div className="font-semibold text-sm">{b.name || 'Unnamed builder'}</div>
+                    <div className="font-semibold text-sm flex items-center gap-1">{b.name || 'Unnamed builder'}{b.isVerified && <VerifiedBadge size={13} />}</div>
                     {b.headline && <div className="text-xs text-ink/50 dark:text-ink-dark/50">{b.headline}</div>}
                   </div>
                 </div>
@@ -153,7 +182,7 @@ function BuildersBrowse() {
                 <div className="flex items-center gap-3 mb-2">
                   <Avatar user={b} size={40} />
                   <div>
-                    <div className="font-semibold text-sm">{b.name || 'Unnamed builder'}</div>
+                    <div className="font-semibold text-sm flex items-center gap-1">{b.name || 'Unnamed builder'}{b.isVerified && <VerifiedBadge size={13} />}</div>
                     {b.headline && <div className="text-xs text-ink/50 dark:text-ink-dark/50">{b.headline}</div>}
                   </div>
                 </div>
@@ -181,12 +210,14 @@ function BuildersBrowse() {
 }
 
 export default function Explore() {
+  const { user } = useAuth();
   const [mode, setMode] = useState('projects');
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
       <h1 className="font-display font-bold text-2xl mb-6">Discover</h1>
 
+      <RecommendedForYou user={user} />
       <FeaturedSection />
 
       <div className="flex gap-2 mb-6">

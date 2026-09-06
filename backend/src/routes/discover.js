@@ -1,6 +1,7 @@
 const express = require('express');
 const prisma = require('../prisma');
 const { asyncHandler } = require('../lib/asyncHandler');
+const { requireAuth } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -115,3 +116,88 @@ router.get('/discover/featured', asyncHandler(async (req, res) => {
 }));
 
 module.exports = router;
+
+// --- personalized recommendations ("Smart Match", not "AI" - this is a
+// weighted scoring heuristic over real signals, no model involved, and it's
+// described that way everywhere it's surfaced) ---
+
+// GET /discover/for-you - projects recommended to the logged-in viewer,
+// weighing: (1) skill overlap between the viewer's tagged skills and each
+// project's open-role skill requirements, (2) whether the viewer has set an
+// availability (a light signal of real intent to join something), (3) the
+// project owner's track record (average rating + completed projects) as a
+// proxy for "this is a well-run project worth joining" since a project itself
+// has no rating until it completes, and (4) the same recency/momentum signal
+// Featured uses, so recommendations don't feel static.
+router.get('/discover/for-you', requireAuth, asyncHandler(async (req, res) => {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  const [viewerSkills, myMemberships, myApplications] = await Promise.all([
+    prisma.userSkill.findMany({ where: { userId: req.user.id }, select: { skill: { select: { name: true } } } }),
+    prisma.membership.findMany({ where: { userId: req.user.id, active: true }, select: { projectId: true } }),
+    prisma.application.findMany({ where: { userId: req.user.id, status: { not: 'WITHDRAWN' } }, select: { projectId: true } })
+  ]);
+  const viewerSkillNames = new Set(viewerSkills.map(s => s.skill.name.toLowerCase()));
+  // don't recommend projects the viewer owns, is already on, or has already applied to
+  const excludeProjectIds = new Set([...myMemberships.map(m => m.projectId), ...myApplications.map(a => a.projectId)]);
+
+  const candidates = await prisma.project.findMany({
+    where: {
+      visibility: 'PUBLIC', status: { in: ['RECRUITING', 'ACTIVE'] },
+      ownerId: { not: req.user.id },
+      id: { notIn: Array.from(excludeProjectIds) }
+    },
+    include: {
+      owner: { select: { id: true, name: true, profilePic: true } },
+      roles: { include: { memberships: { where: { active: true } }, roleSkills: { include: { skill: true } } } }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 80
+  });
+
+  const projectIds = candidates.map(p => p.id);
+  const ownerIds = [...new Set(candidates.map(p => p.ownerId))];
+
+  const [recentApps, recentMsgs, ownerReviews, ownerCompleted] = await Promise.all([
+    prisma.application.groupBy({ by: ['projectId'], where: { projectId: { in: projectIds }, createdAt: { gte: sevenDaysAgo } }, _count: true }),
+    prisma.message.groupBy({ by: ['projectId'], where: { projectId: { in: projectIds }, createdAt: { gte: sevenDaysAgo } }, _count: true }),
+    prisma.review.groupBy({ by: ['revieweeId'], where: { revieweeId: { in: ownerIds } }, _avg: { rating: true } }),
+    prisma.project.groupBy({ by: ['ownerId'], where: { ownerId: { in: ownerIds }, status: 'COMPLETED' }, _count: true })
+  ]);
+  const appMap = Object.fromEntries(recentApps.map(r => [r.projectId, r._count]));
+  const msgMap = Object.fromEntries(recentMsgs.map(r => [r.projectId, r._count]));
+  const ownerRatingMap = Object.fromEntries(ownerReviews.map(r => [r.revieweeId, r._avg.rating || 0]));
+  const ownerCompletedMap = Object.fromEntries(ownerCompleted.map(r => [r.ownerId, r._count]));
+
+  const hasAvailability = !!req.user.availability;
+
+  const scored = candidates
+    .map(p => {
+      const totalSlots = p.roles.reduce((s, r) => s + r.slots, 0);
+      const filledSlots = p.roles.reduce((s, r) => s + r.memberships.length, 0);
+      const hasOpenRole = filledSlots < totalSlots;
+
+      // count distinct skill-name overlaps across all of this project's open roles
+      const projectSkillNames = new Set(p.roles.flatMap(r => r.roleSkills.map(rs => rs.skill.name.toLowerCase())));
+      const skillOverlap = [...projectSkillNames].filter(s => viewerSkillNames.has(s)).length;
+
+      const ageDays = (Date.now() - new Date(p.createdAt).getTime()) / (1000 * 60 * 60 * 24);
+      const recencyScore = Math.max(0, 14 - ageDays);
+      const momentumScore = (appMap[p.id] || 0) * 2 + (msgMap[p.id] || 0) * 0.5;
+      const ownerReputationScore = (ownerRatingMap[p.ownerId] || 0) * 4 + (ownerCompletedMap[p.ownerId] || 0) * 2;
+      const availabilityBonus = hasAvailability ? 3 : 0;
+
+      const score = skillOverlap * 15 + ownerReputationScore + availabilityBonus + recencyScore + momentumScore;
+      return { project: p, score, hasOpenRole, skillOverlap };
+    })
+    .filter(s => s.hasOpenRole)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 12)
+    .map(s => ({
+      ...s.project,
+      roles: s.project.roles.map(r => ({ ...r, filledSlots: r.memberships.length })),
+      matchReason: s.skillOverlap > 0 ? `${s.skillOverlap} skill${s.skillOverlap > 1 ? 's' : ''} in common` : null
+    }));
+
+  res.json(scored);
+}));

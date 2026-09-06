@@ -254,4 +254,47 @@ function withFilledCounts(projects) {
   }));
 }
 
+// owner invites a specific person directly to a role, bypassing the open
+// application queue - lands as an ACCEPTED application (or reuses an
+// existing PENDING one from that user) so the invited person just needs to
+// confirm, reusing the exact same confirm-to-join flow applications already use
+router.post('/:id/invite', requireAuth, asyncHandler(async (req, res) => {
+  const id = requireIntParam(req.params.id, 'project id');
+  const { userId, roleId } = req.body;
+  if (!userId || !roleId) return res.status(400).json({ error: 'userId and roleId required' });
+  const targetUserId = requireIntParam(userId, 'userId');
+  const targetRoleId = requireIntParam(roleId, 'roleId');
+
+  const project = await prisma.project.findUnique({ where: { id } });
+  if (!project) return res.status(404).json({ error: 'not found' });
+  if (project.ownerId !== req.user.id) return res.status(403).json({ error: 'not owner' });
+  if (targetUserId === req.user.id) return res.status(400).json({ error: "can't invite yourself" });
+
+  const role = await prisma.role.findUnique({ where: { id: targetRoleId }, include: { memberships: { where: { active: true } } } });
+  if (!role || role.projectId !== id) return res.status(404).json({ error: 'role not found' });
+  if (role.memberships.length >= role.slots) return res.status(400).json({ error: 'role is already full' });
+
+  const invitedUser = await prisma.user.findUnique({ where: { id: targetUserId } });
+  if (!invitedUser || invitedUser.isBanned) return res.status(404).json({ error: 'user not found' });
+
+  const existing = await prisma.application.findUnique({ where: { roleId_userId: { roleId: targetRoleId, userId: targetUserId } } });
+  let application;
+  if (existing) {
+    if (existing.status === 'CONFIRMED') return res.status(400).json({ error: 'already on this role' });
+    application = await prisma.application.update({ where: { id: existing.id }, data: { status: 'ACCEPTED', message: 'Invited directly by project owner' } });
+  } else {
+    application = await prisma.application.create({
+      data: { projectId: id, roleId: targetRoleId, userId: targetUserId, status: 'ACCEPTED', message: 'Invited directly by project owner' }
+    });
+  }
+
+  await notify(prisma, {
+    userId: targetUserId, type: 'PROJECT_INVITE',
+    message: `You were invited to join ${project.title} as ${role.name}`,
+    link: `/my-applications`
+  });
+
+  res.json(application);
+}));
+
 module.exports = router;

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Avatar } from './BlendRings';
+import { Avatar, VerifiedBadge } from './BlendRings';
+import { post } from '../lib/api';
 
 const AVAILABILITY_LABELS = {
   HOURS_5_10: '5–10 hrs/week',
@@ -32,14 +33,39 @@ const OPEN_TO_LABELS = [
 export default function ProfileView({ profile, reviews, isOwnProfile }) {
   const stats = profile.stats || {};
   const openTo = OPEN_TO_LABELS.filter(([key]) => profile[key]);
+  const [isFollowing, setIsFollowing] = useState(!!profile.isFollowing);
+  const [followerCount, setFollowerCount] = useState(profile._count?.followers ?? 0);
+  const [followBusy, setFollowBusy] = useState(false);
+
+  async function toggleFollow() {
+    setFollowBusy(true);
+    try {
+      if (isFollowing) {
+        await post(`/users/${profile.id}/unfollow`, {});
+        setIsFollowing(false);
+        setFollowerCount(c => Math.max(0, c - 1));
+      } else {
+        await post(`/users/${profile.id}/follow`, {});
+        setIsFollowing(true);
+        setFollowerCount(c => c + 1);
+      }
+    } catch (err) {
+      // swallow - a failed follow toggle isn't critical enough to interrupt the page
+    } finally {
+      setFollowBusy(false);
+    }
+  }
 
   return (
     <div>
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-4">
           <Avatar user={profile} size={72} />
           <div>
-            <h1 className="font-display font-bold text-xl">{profile.name || 'Unnamed builder'}</h1>
+            <h1 className="font-display font-bold text-xl flex items-center gap-1.5">
+              {profile.name || 'Unnamed builder'}
+              {profile.isVerified && <VerifiedBadge />}
+            </h1>
             {profile.headline && <p className="text-sm text-ink/60 dark:text-ink-dark/60">{profile.headline}</p>}
             {(profile.location || profile.timezone) && (
               <p className="font-mono text-xs text-ink/40 dark:text-ink-dark/40 mt-1">
@@ -48,11 +74,23 @@ export default function ProfileView({ profile, reviews, isOwnProfile }) {
             )}
           </div>
         </div>
-        {isOwnProfile && (
+        {isOwnProfile ? (
           <Link to="/profile/edit" className="px-4 py-2 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold whitespace-nowrap">
             Edit profile
           </Link>
+        ) : (
+          <button
+            onClick={toggleFollow} disabled={followBusy}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap ${isFollowing ? 'border border-ink/20 dark:border-ink-dark/20' : 'bg-violet dark:bg-violet-dark text-white'}`}
+          >
+            {isFollowing ? 'Following' : 'Follow'}
+          </button>
         )}
+      </div>
+
+      <div className="flex gap-4 mb-6 text-sm">
+        <span><strong>{followerCount}</strong> <span className="text-ink/50 dark:text-ink-dark/50">followers</span></span>
+        <span><strong>{profile._count?.following ?? 0}</strong> <span className="text-ink/50 dark:text-ink-dark/50">following</span></span>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-6">
