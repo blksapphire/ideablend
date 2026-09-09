@@ -4,25 +4,79 @@
       <stop offset="0%" stop-color="#EAF1FB" />
       <stop offset="100%" stop-color="#F7FAFE" />
     </linearGradient>
-    <linearGradient id="blendGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6C4FFF" />
-      <stop offset="55%" stop-color="#2F8FFF" />
+    <linearGradient id="markGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2F8FFF" />
+      <stop offset="100%" stop-color="#14C9A6" />
+    </linearGradient>
+    <linearGradient id="footerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2F8FFF" />
       <stop offset="100%" stop-color="#14C9A6" />
     </linearGradient>
   </defs>
 
   <rect width="1200" height="630" fill="url(#bgGrad)" />
 
-  <!-- subtle wave lines, bottom-left -->
-  <g stroke="#C7D6EC" stroke-width="1.5" fill="none" opacity="0.6">
-    <path d="M-50 630 C 150 480, 250 560, 450 460" />
-    <path d="M-50 580 C 150 430, 250 510, 450 410" />
-    <path d="M-50 530 C 150 380, 250 460, 450 360" />
-    <path d="M-50 480 C 150 330, 250 410, 450 310" />
+  <!-- logo mark + wordmark -->
+  <rect x="60" y="52" width="30" height="30" rx="9" fill="url(#markGrad)" transform="rotate(45 75 67)" />
+  <text x="100" y="78" font-family="Unbounded, Arial, sans-serif" font-weight="800" font-size="26" fill="#101B3D">Idea Blend</text>
+
+  <!-- headline -->
+  <text x="60" y="175" font-family="Unbounded, Arial, sans-serif" font-weight="800" font-size="46" fill="#101B3D">Find builders.</text>
+  <text x="60" y="228" font-family="Unbounded, Arial, sans-serif" font-weight="800" font-size="46" fill="#101B3D">Build together.</text>
+  <text x="60" y="281" font-family="Unbounded, Arial, sans-serif" font-weight="800" font-size="46" fill="#1A66C7">Ship something real.</text>
+  <rect x="60" y="298" width="230" height="4" rx="2" fill="#14C9A6" />
+
+  <text x="60" y="340" font-family="Inter, Arial, sans-serif" font-size="17" fill="#4B5563">The platform for founders, developers, designers</text>
+  <text x="60" y="364" font-family="Inter, Arial, sans-serif" font-size="17" fill="#4B5563">and dreamers to connect, collaborate, and build.</text>
+
+  <!-- 4 feature icons -->
+  <g font-family="Unbounded, Arial, sans-serif">
+    <rect x="60" y="400" width="52" height="52" rx="14" fill="#E4F0FF" />
+    <circle cx="83" cy="422" r="8" fill="none" stroke="#1A66C7" stroke-width="2.5" />
+    <line x1="89" y1="428" x2="96" y2="435" stroke="#1A66C7" stroke-width="2.5" stroke-linecap="round" />
+    <text x="60" y="474" font-size="16" font-weight="700" fill="#101B3D">Discover</text>
+
+    <rect x="190" y="400" width="52" height="52" rx="14" fill="#DDF7F1" />
+    <circle cx="211" cy="426" r="7" fill="none" stroke="#0B8A70" stroke-width="2.5" />
+    <circle cx="225" cy="426" r="7" fill="none" stroke="#0B8A70" stroke-width="2.5" />
+    <text x="190" y="474" font-size="16" font-weight="700" fill="#101B3D">Connect</text>
+
+    <rect x="320" y="400" width="52" height="52" rx="14" fill="#FBEFE0" />
+    <text x="346" y="433" font-size="22" text-anchor="middle" fill="#9C5F16">▲</text>
+    <text x="320" y="474" font-size="16" font-weight="700" fill="#101B3D">Build</text>
+
+    <rect x="450" y="400" width="52" height="52" rx="14" fill="#E4F0FF" />
+    <line x1="468" y1="434" x2="484" y2="418" stroke="#1A66C7" stroke-width="2.5" stroke-linecap="round" />
+    <polyline points="472,418 484,418 484,430" fill="none" stroke="#1A66C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    <text x="450" y="474" font-size="16" font-weight="700" fill="#101B3D">Grow</text>
   </g>
 
-  <rect x="118" y="255" width="76" height="76" rx="22" fill="url(#blendGrad3)" opacity="0.92" transform="rotate(45 156 293)" />
-  <text x="205" y="330" font-family="Unbounded, Arial, sans-serif" font-weight="800" font-size="72" fill="#101B3D">IDEA BLEND</text>
-  <text x="205" y="378" font-family="Unbounded, Arial, sans-serif" font-weight="700" font-size="26" letter-spacing="2" fill="#101B3D">FOR BUILDERS, BY BUILDERS</text>
-  <text x="205" y="412" font-family="Inter, Arial, sans-serif" font-size="22" fill="#6B7280">Find your team. <tspan fill="#14C9A6">Ship the idea.</tspan></text>
+  <!-- app preview card -->
+  <g>
+    <rect x="660" y="90" width="480" height="330" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" />
+    <rect x="660" y="90" width="480" height="48" rx="16" fill="#FFFFFF" />
+    <rect x="684" y="106" width="16" height="16" rx="5" fill="url(#markGrad)" />
+    <text x="708" y="119" font-family="Unbounded, Arial, sans-serif" font-weight="700" font-size="13" fill="#101B3D">Idea Blend</text>
+    <circle cx="1108" cy="114" r="12" fill="#E4F0FF" />
+
+    <text x="684" y="175" font-family="Unbounded, Arial, sans-serif" font-weight="700" font-size="17" fill="#101B3D">Discover projects</text>
+
+    <rect x="684" y="192" width="432" height="66" rx="10" fill="#F7FAFE" stroke="#E2E8F0" />
+    <rect x="700" y="206" width="60" height="16" rx="5" fill="#DDF7F1" />
+    <text x="700" y="245" font-family="Inter, Arial, sans-serif" font-size="13" fill="#374151">A platform connecting builders to real projects</text>
+
+    <rect x="684" y="270" width="432" height="66" rx="10" fill="#F7FAFE" stroke="#E2E8F0" />
+    <rect x="700" y="284" width="60" height="16" rx="5" fill="#E4F0FF" />
+    <text x="700" y="323" font-family="Inter, Arial, sans-serif" font-size="13" fill="#374151">Find teammates with the skills you need</text>
+
+    <text x="684" y="378" font-family="Unbounded, Arial, sans-serif" font-weight="700" font-size="14" fill="#101B3D">Active builders</text>
+    <circle cx="694" cy="398" r="12" fill="#E4F0FF" />
+    <circle cx="722" cy="398" r="12" fill="#DDF7F1" />
+    <circle cx="750" cy="398" r="12" fill="#FBEFE0" />
+  </g>
+
+  <!-- footer bar -->
+  <rect x="0" y="580" width="1200" height="50" fill="url(#footerGrad)" />
+  <text x="60" y="611" font-family="Inter, Arial, sans-serif" font-size="15" fill="#FFFFFF">ideablend.vercel.app</text>
+  <text x="700" y="611" font-family="Inter, Arial, sans-serif" font-size="15" fill="#FFFFFF">Find people. Build together. Ship something real.</text>
 </svg>

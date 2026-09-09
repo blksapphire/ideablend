@@ -9,7 +9,7 @@ body {
 }
 
 .dark body {
-  background: linear-gradient(160deg, #17171A 0%, #1B1830 45%, #17171A 100%);
+  background: linear-gradient(160deg, #17171A 0%, #10242B 45%, #17171A 100%);
 }
 
 h1, h2, h3, .font-display {

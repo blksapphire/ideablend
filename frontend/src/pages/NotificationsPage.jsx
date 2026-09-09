@@ -46,7 +46,7 @@ export default function NotificationsPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display font-bold text-2xl">Notifications</h1>
         {unreadCount > 0 && (
-          <button onClick={markAllRead} className="text-sm font-semibold text-violet-text dark:text-violet-textdark">
+          <button onClick={markAllRead} className="text-sm font-semibold text-sky-text dark:text-sky-textdark">
             Mark all read
           </button>
         )}
@@ -59,7 +59,7 @@ export default function NotificationsPage() {
           {notifications.map(n => (
             <button
               key={n.id} onClick={() => handleClick(n)}
-              className={`w-full text-left p-4 text-sm hover:bg-page dark:hover:bg-pagedark ${!n.read ? 'bg-violet-soft/40 dark:bg-violet-softdark/40' : ''}`}
+              className={`w-full text-left p-4 text-sm hover:bg-page dark:hover:bg-pagedark ${!n.read ? 'bg-sky-soft/40 dark:bg-sky-softdark/40' : ''}`}
             >
               <p>{n.message}</p>
               <p className="font-mono text-[10px] text-ink/40 dark:text-ink-dark/40 mt-1">{timeAgo(n.createdAt)}</p>

@@ -115,6 +115,23 @@ router.get('/discover/featured', asyncHandler(async (req, res) => {
   });
 }));
 
+// GET /discover/activity - recent activity across PUBLIC projects, for the
+// Discover page's activity feed. Reuses the existing Activity table (already
+// logged per-project) rather than inventing a separate data source; the only
+// new thing here is exposing a cross-project, visibility-filtered view of it.
+router.get('/discover/activity', asyncHandler(async (req, res) => {
+  const activity = await prisma.activity.findMany({
+    where: { project: { visibility: 'PUBLIC' } },
+    include: {
+      actor: { select: { id: true, name: true, profilePic: true } },
+      project: { select: { id: true, title: true } }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 30
+  });
+  res.json(activity);
+}));
+
 module.exports = router;
 
 // --- personalized recommendations ("Smart Match", not "AI" - this is a

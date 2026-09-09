@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { get } from '../lib/api';
 import ProjectCard from '../components/ProjectCard';
-import { Avatar, VerifiedBadge } from '../components/BlendRings';
+import BuilderCard from '../components/BuilderCard';
+import ActivityFeed from '../components/ActivityFeed';
 import { useAuth } from '../context/AuthContext';
 
 const CATEGORIES = ['fintech', 'ai-ml', 'mobile', 'design', 'web'];
@@ -19,12 +19,12 @@ function RecommendedForYou({ user }) {
   if (!user || !recs || recs.length === 0) return null;
 
   return (
-    <div className="mb-10">
+    <section className="mb-8">
       <div className="flex items-center gap-2 mb-3">
-        <h2 className="font-display font-bold text-lg">Recommended for you</h2>
-        <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark">SMART MATCH</span>
+        <h2 className="font-display font-bold text-base">Recommended for you</h2>
+        <span className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark">SMART MATCH</span>
       </div>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
         {recs.map(p => (
           <div key={p.id}>
             <ProjectCard project={p} />
@@ -32,47 +32,45 @@ function RecommendedForYou({ user }) {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
-function FeaturedSection() {
-  const [featured, setFeatured] = useState(null);
+function TrendingProjects({ projects }) {
+  if (!projects || projects.length === 0) return null;
+  return (
+    <section className="mb-8">
+      <h2 className="font-display font-bold text-base mb-3">Trending projects</h2>
+      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
+        {projects.map(p => <ProjectCard key={p.id} project={p} />)}
+      </div>
+      <p className="font-mono text-[10px] text-ink/40 dark:text-ink-dark/40 mt-2">Rotates every 4 hours based on recent activity.</p>
+    </section>
+  );
+}
 
-  useEffect(() => { get('/discover/featured').then(setFeatured).catch(() => setFeatured(null)); }, []);
+function ActiveBuilders({ builders }) {
+  if (!builders || builders.length === 0) return null;
+  return (
+    <section className="mb-8">
+      <h2 className="font-display font-bold text-base mb-3">Active builders</h2>
+      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
+        {builders.map(b => <BuilderCard key={b.id} user={b} />)}
+      </div>
+    </section>
+  );
+}
 
-  if (!featured || (featured.projects.length === 0 && featured.builders.length === 0)) return null;
+function LiveActivity() {
+  const [activity, setActivity] = useState(null);
+  useEffect(() => { get('/discover/activity').then(setActivity).catch(() => setActivity([])); }, []);
+  if (!activity) return null;
 
   return (
-    <div className="mb-10">
-      {featured.projects.length > 0 && (
-        <div className="mb-6">
-          <h2 className="font-display font-bold text-lg mb-3">Featured projects</h2>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {featured.projects.map(p => <ProjectCard key={p.id} project={p} />)}
-          </div>
-        </div>
-      )}
-      {featured.builders.length > 0 && (
-        <div>
-          <h2 className="font-display font-bold text-lg mb-3">Active builders</h2>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {featured.builders.map(b => (
-              <Link key={b.id} to={`/users/${b.id}`} className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4 hover:border-violet/40 dark:hover:border-violet-dark/40 transition-colors">
-                <div className="flex items-center gap-2">
-                  <Avatar user={b} size={36} />
-                  <div>
-                    <div className="font-semibold text-sm flex items-center gap-1">{b.name || 'Unnamed builder'}{b.isVerified && <VerifiedBadge size={13} />}</div>
-                    {b.headline && <div className="text-xs text-ink/50 dark:text-ink-dark/50">{b.headline}</div>}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-      <p className="font-mono text-[11px] text-ink/40 dark:text-ink-dark/40 mt-3">Featured picks rotate every 4 hours.</p>
-    </div>
+    <section className="mb-10 rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4">
+      <h2 className="font-display font-bold text-base mb-3">Activity</h2>
+      <ActivityFeed activities={activity} showProject emptyText="No public activity yet." />
+    </section>
   );
 }
 
@@ -102,7 +100,7 @@ function ProjectsBrowse() {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-3 mb-6">
+      <div className="flex flex-wrap gap-2 mb-4">
         <form onSubmit={e => { e.preventDefault(); load(1); }} className="flex-1 min-w-[200px]">
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search projects"
             className="w-full p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
@@ -120,11 +118,11 @@ function ProjectsBrowse() {
         <p className="text-sm text-ink/50 dark:text-ink-dark/50">No projects match yet. Try a different search.</p>
       ) : (
         <>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
             {projects.map(p => <ProjectCard key={p.id} project={p} />)}
           </div>
           {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-4 mt-8">
+            <div className="flex justify-center items-center gap-4 mt-6">
               <button disabled={page <= 1} onClick={() => load(page - 1)} className="px-4 py-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold disabled:opacity-30">Previous</button>
               <span className="font-mono text-xs text-ink/50 dark:text-ink-dark/50">Page {page} of {totalPages}</span>
               <button disabled={page >= totalPages} onClick={() => load(page + 1)} className="px-4 py-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold disabled:opacity-30">Next</button>
@@ -162,12 +160,12 @@ function BuildersBrowse() {
 
   return (
     <div>
-      <form onSubmit={e => { e.preventDefault(); load(1); }} className="flex flex-wrap gap-3 mb-6">
+      <form onSubmit={e => { e.preventDefault(); load(1); }} className="flex flex-wrap gap-2 mb-4">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search by name or headline"
           className="flex-1 min-w-[200px] p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
         <input value={skill} onChange={e => setSkill(e.target.value)} placeholder="Skill (e.g. React)"
           className="w-48 p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
-        <button className="px-4 py-2.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">Search</button>
+        <button className="px-4 py-2.5 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold">Search</button>
       </form>
 
       {loading ? (
@@ -176,28 +174,11 @@ function BuildersBrowse() {
         <p className="text-sm text-ink/50 dark:text-ink-dark/50">No builders match yet.</p>
       ) : (
         <>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {builders.map(b => (
-              <Link key={b.id} to={`/users/${b.id}`} className="block rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-5 hover:border-violet/40 dark:hover:border-violet-dark/40 transition-colors">
-                <div className="flex items-center gap-3 mb-2">
-                  <Avatar user={b} size={40} />
-                  <div>
-                    <div className="font-semibold text-sm flex items-center gap-1">{b.name || 'Unnamed builder'}{b.isVerified && <VerifiedBadge size={13} />}</div>
-                    {b.headline && <div className="text-xs text-ink/50 dark:text-ink-dark/50">{b.headline}</div>}
-                  </div>
-                </div>
-                {b.userSkills?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {b.userSkills.slice(0, 4).map(us => (
-                      <span key={us.skillId} className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-violet-soft dark:bg-violet-softdark text-violet-text dark:text-violet-textdark">{us.skill.name}</span>
-                    ))}
-                  </div>
-                )}
-              </Link>
-            ))}
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {builders.map(b => <BuilderCard key={b.id} user={b} />)}
           </div>
           {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-4 mt-8">
+            <div className="flex justify-center items-center gap-4 mt-6">
               <button disabled={page <= 1} onClick={() => load(page - 1)} className="px-4 py-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold disabled:opacity-30">Previous</button>
               <span className="font-mono text-xs text-ink/50 dark:text-ink-dark/50">Page {page} of {totalPages}</span>
               <button disabled={page >= totalPages} onClick={() => load(page + 1)} className="px-4 py-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold disabled:opacity-30">Next</button>
@@ -212,17 +193,22 @@ function BuildersBrowse() {
 export default function Explore() {
   const { user } = useAuth();
   const [mode, setMode] = useState('projects');
+  const [featured, setFeatured] = useState(null);
+
+  useEffect(() => { get('/discover/featured').then(setFeatured).catch(() => setFeatured(null)); }, []);
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
-      <h1 className="font-display font-bold text-2xl mb-6">Discover</h1>
+    <div className="max-w-5xl mx-auto px-6 py-6">
+      <h1 className="font-display font-bold text-xl mb-5">Discover</h1>
 
       <RecommendedForYou user={user} />
-      <FeaturedSection />
+      <TrendingProjects projects={featured?.projects} />
+      <ActiveBuilders builders={featured?.builders} />
+      <LiveActivity />
 
-      <div className="flex gap-2 mb-6">
-        <button onClick={() => setMode('projects')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'projects' ? 'bg-violet dark:bg-violet-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}>Projects</button>
-        <button onClick={() => setMode('builders')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'builders' ? 'bg-violet dark:bg-violet-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}>Builders</button>
+      <div className="flex gap-2 mb-4">
+        <button onClick={() => setMode('projects')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'projects' ? 'bg-sky dark:bg-sky-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}>Projects</button>
+        <button onClick={() => setMode('builders')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'builders' ? 'bg-sky dark:bg-sky-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}>Builders</button>
       </div>
 
       {mode === 'projects' ? <ProjectsBrowse /> : <BuildersBrowse />}

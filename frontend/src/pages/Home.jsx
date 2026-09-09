@@ -16,7 +16,7 @@ export default function Home() {
           — pick a role, join the squad, build together.
         </p>
         <div className="flex gap-3 mt-7">
-          <Link to="/create" className="px-5 py-3 rounded-xl bg-violet dark:bg-violet-dark text-white font-semibold text-sm">
+          <Link to="/create" className="px-5 py-3 rounded-xl bg-sky dark:bg-sky-dark text-white font-semibold text-sm">
             Post a project
           </Link>
           <Link to="/explore" className="px-5 py-3 rounded-xl border border-ink/25 dark:border-ink-dark/25 font-semibold text-sm">

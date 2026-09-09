@@ -29,7 +29,7 @@ export default function ApplicationsInbox() {
   }
 
   const statusColor = {
-    PENDING: 'bg-violet-soft dark:bg-violet-softdark text-violet-text dark:text-violet-textdark',
+    PENDING: 'bg-amber-soft dark:bg-amber-softdark text-amber-text dark:text-amber-textdark',
     ACCEPTED: 'bg-sky-soft dark:bg-sky-softdark text-sky-text dark:text-sky-textdark',
     CONFIRMED: 'bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark',
     REJECTED: 'bg-ink/5 dark:bg-ink-dark/5 text-ink/50 dark:text-ink-dark/50',
@@ -51,7 +51,7 @@ export default function ApplicationsInbox() {
             <div key={app.id} className="rounded-xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4">
               <div className="flex justify-between items-start">
                 <div>
-                  <Link to={`/users/${app.user.id}`} className="font-semibold text-sm hover:text-violet-text dark:hover:text-violet-textdark">{app.user.name || app.user.email}</Link>
+                  <Link to={`/users/${app.user.id}`} className="font-semibold text-sm hover:text-sky-text dark:hover:text-sky-textdark">{app.user.name || app.user.email}</Link>
                   <p className="text-xs text-ink/50 dark:text-ink-dark/50 mt-0.5">Applying for {app.role.name}</p>
                   {app.user.skills && <p className="font-mono text-xs text-ink/40 dark:text-ink-dark/40 mt-1">{app.user.skills}</p>}
                   {app.message && <p className="text-sm mt-2">{app.message}</p>}
@@ -60,7 +60,7 @@ export default function ApplicationsInbox() {
               </div>
               {app.status === 'PENDING' && (
                 <div className="flex gap-2 mt-3">
-                  <button onClick={() => act(app.id, 'accept')} className="px-3 py-1.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-xs font-semibold">
+                  <button onClick={() => act(app.id, 'accept')} className="px-3 py-1.5 rounded-lg bg-sky dark:bg-sky-dark text-white text-xs font-semibold">
                     Accept
                   </button>
                   <button onClick={() => act(app.id, 'reject')} className="px-3 py-1.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-xs font-semibold">

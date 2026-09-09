@@ -137,7 +137,7 @@ export default function EditProject() {
         </div>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
-        <button className="w-full p-3 rounded-lg bg-violet dark:bg-violet-dark text-white font-semibold">
+        <button className="w-full p-3 rounded-lg bg-sky dark:bg-sky-dark text-white font-semibold">
           {saved ? 'Saved' : 'Save changes'}
         </button>
       </form>
@@ -181,7 +181,7 @@ export default function EditProject() {
             </div>
           </form>
         ) : (
-          <button onClick={() => setAddingRole(true)} className="text-sm font-semibold text-violet-text dark:text-violet-textdark">
+          <button onClick={() => setAddingRole(true)} className="text-sm font-semibold text-sky-text dark:text-sky-textdark">
             + Add a role vacancy
           </button>
         )}
@@ -197,7 +197,7 @@ export default function EditProject() {
         <form onSubmit={searchInvitees} className="flex gap-2 mb-3">
           <input value={inviteQuery} onChange={e => setInviteQuery(e.target.value)} placeholder="Search by name or email"
             className="flex-1 p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
-          <button className="px-4 py-2.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">Search</button>
+          <button className="px-4 py-2.5 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold">Search</button>
         </form>
         {inviteResults.length > 0 && (
           <div className="space-y-2 mb-2">

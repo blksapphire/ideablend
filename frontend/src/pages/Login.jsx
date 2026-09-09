@@ -38,15 +38,15 @@ export default function Login() {
           className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark"
         />
         {error && <p className="text-sm text-red-500">{error}</p>}
-        <button disabled={loading} className="w-full p-3 rounded-lg bg-violet dark:bg-violet-dark text-white font-semibold">
+        <button disabled={loading} className="w-full p-3 rounded-lg bg-sky dark:bg-sky-dark text-white font-semibold">
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
       <p className="text-sm text-ink/60 dark:text-ink-dark/60 mt-3">
-        <Link to="/forgot-password" className="text-violet-text dark:text-violet-textdark font-medium">Forgot password?</Link>
+        <Link to="/forgot-password" className="text-sky-text dark:text-sky-textdark font-medium">Forgot password?</Link>
       </p>
       <p className="text-sm text-ink/60 dark:text-ink-dark/60 mt-4">
-        New here? <Link to="/register" className="text-violet-text dark:text-violet-textdark font-medium">Create an account</Link>
+        New here? <Link to="/register" className="text-sky-text dark:text-sky-textdark font-medium">Create an account</Link>
       </p>
     </div>
   );

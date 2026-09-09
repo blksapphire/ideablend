@@ -82,7 +82,7 @@ function UserManagement() {
       <form onSubmit={e => { e.preventDefault(); load(); }} className="flex gap-2 mb-4">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search by name or email"
           className="flex-1 p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
-        <button className="px-4 py-2.5 rounded-lg bg-violet dark:bg-violet-dark text-white text-sm font-semibold">Search</button>
+        <button className="px-4 py-2.5 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold">Search</button>
       </form>
       {error && <p className="text-sm text-red-500 mb-3">{error}</p>}
       <div className="rounded-xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark divide-y divide-ink/10 dark:divide-ink-dark/10">
@@ -91,7 +91,7 @@ function UserManagement() {
             <div>
               <div className="font-medium">
                 {u.isRemoved ? 'Removed user' : (u.name || 'Unnamed')}{' '}
-                {u.isAdmin && <span className="font-mono text-[10px] text-violet-text dark:text-violet-textdark">ADMIN</span>}
+                {u.isAdmin && <span className="font-mono text-[10px] text-sky-text dark:text-sky-textdark">ADMIN</span>}
                 {u.isVerified && <span className="font-mono text-[10px] text-sky-text dark:text-sky-textdark ml-1">VERIFIED</span>}
                 {u.isRemoved && <span className="font-mono text-[10px] text-red-500 ml-1">REMOVED</span>}
               </div>

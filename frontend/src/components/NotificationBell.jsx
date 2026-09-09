@@ -74,7 +74,7 @@ export default function NotificationBell() {
             <div className="flex items-center justify-between p-3 border-b border-ink/10 dark:border-ink-dark/10">
               <span className="font-semibold text-sm">Notifications</span>
               {unreadCount > 0 && (
-                <button onClick={markAllRead} className="text-xs text-violet-text dark:text-violet-textdark font-medium">
+                <button onClick={markAllRead} className="text-xs text-sky-text dark:text-sky-textdark font-medium">
                   Mark all read
                 </button>
               )}
@@ -86,7 +86,7 @@ export default function NotificationBell() {
                 <button
                   key={n.id}
                   onClick={() => handleClick(n)}
-                  className={`w-full text-left p-3 border-b border-ink/10 dark:border-ink-dark/10 last:border-none text-sm hover:bg-page dark:hover:bg-pagedark ${!n.read ? 'bg-violet-soft/40 dark:bg-violet-softdark/40' : ''}`}
+                  className={`w-full text-left p-3 border-b border-ink/10 dark:border-ink-dark/10 last:border-none text-sm hover:bg-page dark:hover:bg-pagedark ${!n.read ? 'bg-sky-soft/40 dark:bg-sky-softdark/40' : ''}`}
                 >
                   <p>{n.message}</p>
                   <p className="font-mono text-[10px] text-ink/40 dark:text-ink-dark/40 mt-1">{timeAgo(n.createdAt)}</p>

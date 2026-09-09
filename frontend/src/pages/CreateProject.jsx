@@ -130,13 +130,13 @@ export default function CreateProject() {
               </div>
             ))}
           </div>
-          <button type="button" onClick={addRole} className="text-sm font-medium text-violet-text dark:text-violet-textdark mt-2">
+          <button type="button" onClick={addRole} className="text-sm font-medium text-sky-text dark:text-sky-textdark mt-2">
             + Add another role
           </button>
         </div>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
-        <button disabled={loading} className="w-full p-3 rounded-lg bg-violet dark:bg-violet-dark text-white font-semibold">
+        <button disabled={loading} className="w-full p-3 rounded-lg bg-sky dark:bg-sky-dark text-white font-semibold">
           {loading ? 'Posting…' : 'Post project'}
         </button>
       </form>
