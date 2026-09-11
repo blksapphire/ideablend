@@ -2,16 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Clean flat backgrounds. No gradients. Dark means dark. */
 body {
-  @apply text-ink dark:text-ink-dark font-sans;
-  background: linear-gradient(160deg, #F4F4F5 0%, #EDF1FB 45%, #F4F4F5 100%);
-  min-height: 100vh;
-}
-
-.dark body {
-  background: linear-gradient(160deg, #17171A 0%, #10242B 45%, #17171A 100%);
+  @apply bg-page dark:bg-pagedark text-ink dark:text-ink-dark font-sans;
 }
 
 h1, h2, h3, .font-display {
   font-family: 'Unbounded', sans-serif;
+}
+
+/* Crisp scrollbars that don't fight the palette */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-ink/20 dark:bg-ink-dark/20 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-ink/40 dark:bg-ink-dark/40; }
+
+/* Focus ring using primary blue, not browser default */
+:focus-visible {
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
 }

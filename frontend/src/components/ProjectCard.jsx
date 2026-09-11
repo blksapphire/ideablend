@@ -12,16 +12,16 @@ export default function ProjectCard({ project }) {
   return (
     <Link
       to={`/projects/${project.id}`}
-      className="block rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-5 hover:border-sky/40 dark:hover:border-sky-dark/40 transition-colors"
+      className="block rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-5 hover:border-blue/40 dark:hover:border-blue-dark/40 transition-colors"
     >
       <div className="flex flex-wrap gap-1.5">
         {project.category && (
-          <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-amber-soft dark:bg-amber-softdark text-amber-text dark:text-amber-textdark">
+          <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-ink/8 dark:bg-ink-dark/8 text-ink/70 dark:text-ink-dark/70">
             {project.category.toUpperCase()}
           </span>
         )}
         {project.stage && (
-          <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-sky-soft dark:bg-sky-softdark text-sky-text dark:text-sky-textdark">
+          <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-blue-soft dark:bg-blue-softdark text-blue-text dark:text-blue-textdark">
             {project.stage}
           </span>
         )}
@@ -38,7 +38,7 @@ export default function ProjectCard({ project }) {
       {openRoles.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-3">
           {openRoles.slice(0, 3).map(r => (
-            <span key={r.id} className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark">
+            <span key={r.id} className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-green-soft dark:bg-green-softdark text-green-text dark:text-green-textdark">
               {r.name}
             </span>
           ))}
@@ -48,7 +48,7 @@ export default function ProjectCard({ project }) {
       {totalSlots > 0 && (
         <div className="mt-3">
           <div className="h-1.5 rounded-full bg-page dark:bg-pagedark overflow-hidden">
-            <div className="h-full bg-sky dark:bg-sky-dark" style={{ width: `${progressPct}%` }} />
+            <div className="h-full bg-blue dark:bg-blue-dark" style={{ width: `${progressPct}%` }} />
           </div>
         </div>
       )}

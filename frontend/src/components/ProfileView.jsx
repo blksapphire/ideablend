@@ -20,7 +20,7 @@ function StatCard({ label, value }) {
 }
 
 function Stars({ rating }) {
-  return <span className="text-teal dark:text-teal-dark">{'★'.repeat(rating)}{'☆'.repeat(5 - rating)}</span>;
+  return <span className="text-green dark:text-green-dark">{'★'.repeat(rating)}{'☆'.repeat(5 - rating)}</span>;
 }
 
 const OPEN_TO_LABELS = [
@@ -75,13 +75,13 @@ export default function ProfileView({ profile, reviews, isOwnProfile }) {
           </div>
         </div>
         {isOwnProfile ? (
-          <Link to="/profile/edit" className="px-4 py-2 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold whitespace-nowrap">
+          <Link to="/profile/edit" className="px-4 py-2 rounded-lg bg-blue dark:bg-blue-dark text-white text-sm font-semibold whitespace-nowrap">
             Edit profile
           </Link>
         ) : (
           <button
             onClick={toggleFollow} disabled={followBusy}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap ${isFollowing ? 'border border-ink/20 dark:border-ink-dark/20' : 'bg-sky dark:bg-sky-dark text-white'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap ${isFollowing ? 'border border-ink/20 dark:border-ink-dark/20' : 'bg-blue dark:bg-blue-dark text-white'}`}
           >
             {isFollowing ? 'Following' : 'Follow'}
           </button>
@@ -104,7 +104,7 @@ export default function ProfileView({ profile, reviews, isOwnProfile }) {
       {openTo.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {openTo.map(([key, label]) => (
-            <span key={key} className="font-mono text-[11px] px-2 py-1 rounded-md bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark">
+            <span key={key} className="font-mono text-[11px] px-2 py-1 rounded-md bg-green-soft dark:bg-green-softdark text-green-text dark:text-green-textdark">
               Open to {label}
             </span>
           ))}
@@ -116,10 +116,10 @@ export default function ProfileView({ profile, reviews, isOwnProfile }) {
       )}
 
       <div className="flex flex-wrap gap-3 mb-6 text-sm">
-        {profile.githubUrl && <a href={profile.githubUrl} target="_blank" rel="noreferrer" className="text-sky-text dark:text-sky-textdark">GitHub</a>}
-        {profile.linkedinUrl && <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="text-sky-text dark:text-sky-textdark">LinkedIn</a>}
-        {profile.portfolioUrl && <a href={profile.portfolioUrl} target="_blank" rel="noreferrer" className="text-sky-text dark:text-sky-textdark">Portfolio</a>}
-        {profile.websiteUrl && <a href={profile.websiteUrl} target="_blank" rel="noreferrer" className="text-sky-text dark:text-sky-textdark">Website</a>}
+        {profile.githubUrl && <a href={profile.githubUrl} target="_blank" rel="noreferrer" className="text-blue-text dark:text-blue-textdark">GitHub</a>}
+        {profile.linkedinUrl && <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="text-blue-text dark:text-blue-textdark">LinkedIn</a>}
+        {profile.portfolioUrl && <a href={profile.portfolioUrl} target="_blank" rel="noreferrer" className="text-blue-text dark:text-blue-textdark">Portfolio</a>}
+        {profile.websiteUrl && <a href={profile.websiteUrl} target="_blank" rel="noreferrer" className="text-blue-text dark:text-blue-textdark">Website</a>}
       </div>
 
       {profile.userSkills?.length > 0 && (
@@ -127,7 +127,7 @@ export default function ProfileView({ profile, reviews, isOwnProfile }) {
           <h3 className="font-semibold text-sm mb-2">Skills</h3>
           <div className="flex flex-wrap gap-2">
             {profile.userSkills.map(us => (
-              <span key={us.skillId} className="font-mono text-xs px-3 py-1.5 rounded-md bg-sky-soft dark:bg-sky-softdark text-sky-text dark:text-sky-textdark">
+              <span key={us.skillId} className="font-mono text-xs px-3 py-1.5 rounded-md bg-blue-soft dark:bg-blue-softdark text-blue-text dark:text-blue-textdark">
                 {us.skill.name} · L{us.level}
               </span>
             ))}

@@ -7,10 +7,15 @@ import GlobalSearch from './GlobalSearch';
 
 function BlendLogo() {
   return (
-    <svg width="28" height="28" viewBox="0 0 30 30">
-      <circle cx="11" cy="13" r="8" className="fill-sky dark:fill-sky-dark" opacity="0.9" />
-      <circle cx="19" cy="13" r="8" className="fill-teal dark:fill-teal-dark" opacity="0.85" />
-      <circle cx="15" cy="20" r="8" className="fill-amber dark:fill-amber-dark" opacity="0.85" />
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      {/* top-left blue quadrant */}
+      <path d="M14 2 L2 14 L14 14 Z" className="fill-blue dark:fill-blue-dark" />
+      {/* bottom-right green quadrant */}
+      <path d="M14 14 L26 14 L14 26 Z" className="fill-green dark:fill-green-dark" />
+      {/* top-right ink (light) / slightly lighter dark */}
+      <path d="M14 2 L26 14 L14 14 Z" className="fill-ink/15 dark:fill-ink-dark/10" />
+      {/* bottom-left ink */}
+      <path d="M2 14 L14 14 L14 26 Z" className="fill-ink/15 dark:fill-ink-dark/10" />
     </svg>
   );
 }
@@ -61,9 +66,14 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2 shrink-0">
           {user && (
-            <Link to="/create" className="hidden sm:inline-block px-3.5 py-2 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold whitespace-nowrap">
-              Create Project
-            </Link>
+            <>
+              <Link to="/explore" className="hidden sm:inline-block px-3.5 py-2 rounded-lg border border-ink/20 dark:border-ink-dark/20 text-sm font-semibold whitespace-nowrap">
+                Discover
+              </Link>
+              <Link to="/create" className="hidden sm:inline-block px-3.5 py-2 rounded-lg bg-blue dark:bg-blue-dark text-white text-sm font-semibold whitespace-nowrap">
+                Create Project
+              </Link>
+            </>
           )}
 
           <button
@@ -115,7 +125,7 @@ export default function Navbar() {
           ) : (
             <div className="hidden sm:flex items-center gap-2">
               <Link to="/login" className="px-4 py-2 rounded-lg border border-ink/20 dark:border-ink-dark/20 text-sm font-semibold">Sign in</Link>
-              <Link to="/register" className="px-4 py-2 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold">Sign up</Link>
+              <Link to="/register" className="px-4 py-2 rounded-lg bg-blue dark:bg-blue-dark text-white text-sm font-semibold">Sign up</Link>
             </div>
           )}
 
@@ -160,13 +170,16 @@ export default function Navbar() {
                 {items.map(i => (
                   <Link key={i.to} to={i.to} onClick={() => setMobileOpen(false)}>{i.label}</Link>
                 ))}
-                <Link to="/create" onClick={() => setMobileOpen(false)} className="text-center px-4 py-2.5 rounded-lg bg-sky dark:bg-sky-dark text-white font-semibold">
+                <Link to="/explore" onClick={() => setMobileOpen(false)} className="text-center px-4 py-2.5 rounded-lg border border-ink/20 dark:border-ink-dark/20 font-semibold">
+                  Discover
+                </Link>
+                <Link to="/create" onClick={() => setMobileOpen(false)} className="text-center px-4 py-2.5 rounded-lg bg-blue dark:bg-blue-dark text-white font-semibold">
                   Create Project
                 </Link>
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                <Link to="/register" onClick={() => setMobileOpen(false)} className="text-center px-4 py-2.5 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold">
+                <Link to="/register" onClick={() => setMobileOpen(false)} className="text-center px-4 py-2.5 rounded-lg bg-blue dark:bg-blue-dark text-white text-sm font-semibold">
                   Sign up
                 </Link>
                 <Link to="/login" onClick={() => setMobileOpen(false)} className="text-center px-4 py-2.5 rounded-lg border border-ink/20 dark:border-ink-dark/20 text-sm font-semibold">

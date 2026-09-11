@@ -1,6 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import usePushNotifications from './hooks/usePushNotifications';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -21,6 +23,8 @@ import Admin from './pages/Admin';
 import NotificationsPage from './pages/NotificationsPage';
 
 export default function App() {
+  const { user } = useAuth();
+  usePushNotifications(user);
   return (
     <div className="min-h-screen">
       <Navbar />

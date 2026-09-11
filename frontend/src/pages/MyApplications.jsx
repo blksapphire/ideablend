@@ -42,7 +42,7 @@ export default function MyApplications() {
               </div>
               {app.status === 'ACCEPTED' && (
                 <div className="flex gap-2 mt-3">
-                  <button onClick={() => act(app.id, 'confirm')} className="px-3 py-1.5 rounded-lg bg-teal dark:bg-teal-dark text-white text-xs font-semibold">
+                  <button onClick={() => act(app.id, 'confirm')} className="px-3 py-1.5 rounded-lg bg-green dark:bg-green-dark text-white text-xs font-semibold">
                     Confirm and join
                   </button>
                   <button onClick={() => act(app.id, 'withdraw')} className="px-3 py-1.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-xs font-semibold">

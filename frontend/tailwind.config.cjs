@@ -5,10 +5,26 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        teal: { DEFAULT: '#14C9A6', dark: '#25E4BE', soft: '#DDF7F1', softdark: '#122E2C', text: '#0B8A70', textdark: '#7BF0D6' },
-        sky: { DEFAULT: '#2F8FFF', dark: '#5DA6FF', soft: '#E4F0FF', softdark: '#122142', text: '#1A66C7', textdark: '#9CC7FF' },
-        amber: { DEFAULT: '#E08A2C', dark: '#F0A94E', soft: '#FBEFE0', softdark: '#3A2A14', text: '#9C5F16', textdark: '#F0C284' },
-        ink: { DEFAULT: '#0A0A0B', dark: '#FAFAFA' }
+        // Two colours only. Blue is primary (actions, links, focus states).
+        // Green is accent (success, joins, completions, positive signals).
+        // Everything else is ink on a neutral surface.
+        blue: {
+          DEFAULT: '#2563EB',
+          dark: '#3B82F6',
+          soft: '#EFF6FF',
+          softdark: '#1E3A5F',
+          text: '#1D4ED8',
+          textdark: '#93C5FD'
+        },
+        green: {
+          DEFAULT: '#16A34A',
+          dark: '#22C55E',
+          soft: '#F0FDF4',
+          softdark: '#14532D',
+          text: '#15803D',
+          textdark: '#86EFAC'
+        },
+        ink: { DEFAULT: '#09090B', dark: '#FAFAFA' }
       },
       fontFamily: {
         display: ['Unbounded', 'sans-serif'],
@@ -16,10 +32,10 @@ module.exports = {
         mono: ['JetBrains Mono', 'monospace']
       },
       backgroundColor: {
-        page: '#F4F4F5',
-        pagedark: '#17171A',
+        page: '#FAFAFA',
+        pagedark: '#09090B',
         surface: '#FFFFFF',
-        surfacedark: '#222225'
+        surfacedark: '#18181B'
       }
     }
   },

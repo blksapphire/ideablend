@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="max-w-5xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
       <div>
-        <span className="font-mono text-xs px-3 py-1 rounded-md bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark">
+        <span className="font-mono text-xs px-3 py-1 rounded-md bg-green-soft dark:bg-green-softdark text-green-text dark:text-green-textdark">
           for builders, by builders
         </span>
         <h1 className="font-display font-extrabold text-4xl md:text-5xl leading-tight mt-4">
@@ -16,7 +16,7 @@ export default function Home() {
           — pick a role, join the squad, build together.
         </p>
         <div className="flex gap-3 mt-7">
-          <Link to="/create" className="px-5 py-3 rounded-xl bg-sky dark:bg-sky-dark text-white font-semibold text-sm">
+          <Link to="/create" className="px-5 py-3 rounded-xl bg-blue dark:bg-blue-dark text-white font-semibold text-sm">
             Post a project
           </Link>
           <Link to="/explore" className="px-5 py-3 rounded-xl border border-ink/25 dark:border-ink-dark/25 font-semibold text-sm">
@@ -26,7 +26,7 @@ export default function Home() {
       </div>
 
       <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-6">
-        <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark">
+        <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-green-soft dark:bg-green-softdark text-green-text dark:text-green-textdark">
           LOGISTICS
         </span>
         <h3 className="font-display font-semibold mt-3">Live dispatch rider tracker</h3>

@@ -37,18 +37,18 @@ function RepoPanel({ project, isOwner, onSaved }) {
             value={value} onChange={e => setValue(e.target.value)} placeholder="https://github.com/owner/repo"
             className="flex-1 p-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark text-sm"
           />
-          <button onClick={save} className="px-3 py-2 rounded-lg bg-sky dark:bg-sky-dark text-white text-xs font-semibold">Save</button>
+          <button onClick={save} className="px-3 py-2 rounded-lg bg-blue dark:bg-blue-dark text-white text-xs font-semibold">Save</button>
           <button onClick={() => setEditing(false)} className="text-xs text-ink/50 dark:text-ink-dark/50">Cancel</button>
         </div>
       ) : project.repoUrl ? (
         <div className="flex items-center justify-between">
-          <a href={project.repoUrl} target="_blank" rel="noreferrer" className="text-sm text-sky-text dark:text-sky-textdark font-medium">
+          <a href={project.repoUrl} target="_blank" rel="noreferrer" className="text-sm text-blue-text dark:text-blue-textdark font-medium">
             {project.repoUrl}
           </a>
           {isOwner && <button onClick={() => setEditing(true)} className="text-xs text-ink/50 dark:text-ink-dark/50">Edit</button>}
         </div>
       ) : (
-        <button onClick={() => setEditing(true)} className="text-xs font-semibold text-sky-text dark:text-sky-textdark">
+        <button onClick={() => setEditing(true)} className="text-xs font-semibold text-blue-text dark:text-blue-textdark">
           + Link a GitHub repo
         </button>
       )}
@@ -140,7 +140,7 @@ function FilesPanel({ projectId, user }) {
         {files.map(f => (
           <div key={f.id} className="flex items-center justify-between text-sm">
             <div>
-              <button onClick={() => downloadFile(`/files/${f.id}/download`, f.filename)} className="font-medium text-sky-text dark:text-sky-textdark">
+              <button onClick={() => downloadFile(`/files/${f.id}/download`, f.filename)} className="font-medium text-blue-text dark:text-blue-textdark">
                 {f.filename}
               </button>
               <span className="font-mono text-xs text-ink/40 dark:text-ink-dark/40 ml-2">{formatSize(f.size)} · {f.uploader?.name}</span>
@@ -151,7 +151,7 @@ function FilesPanel({ projectId, user }) {
           </div>
         ))}
       </div>
-      <label className="text-xs font-semibold text-sky-text dark:text-sky-textdark cursor-pointer">
+      <label className="text-xs font-semibold text-blue-text dark:text-blue-textdark cursor-pointer">
         {uploading ? 'Uploading…' : '+ Upload a file (max 15MB)'}
         <input type="file" onChange={handleUpload} disabled={uploading} className="hidden" />
       </label>
@@ -199,15 +199,15 @@ export default function ProjectDetail() {
         <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-6">
           <div className="flex flex-wrap gap-1.5">
             {project.category && (
-              <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-amber-soft dark:bg-amber-softdark text-amber-text dark:text-amber-textdark">
+              <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-ink/8 dark:bg-ink-dark/8 text-ink/70 dark:text-ink-dark/70">
                 {project.category.toUpperCase()}
               </span>
             )}
-            <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-sky-soft dark:bg-sky-softdark text-sky-text dark:text-sky-textdark">
+            <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-blue-soft dark:bg-blue-softdark text-blue-text dark:text-blue-textdark">
               {project.stage}
             </span>
             {project.type && (
-              <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark">
+              <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-green-soft dark:bg-green-softdark text-green-text dark:text-green-textdark">
                 {project.type.replace('_', ' ')}
               </span>
             )}
@@ -222,7 +222,7 @@ export default function ProjectDetail() {
 
           {isOwner ? (
             <div className="flex flex-wrap gap-2 mt-6">
-              <Link to={`/projects/${project.id}/applications`} className="px-4 py-2.5 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold">
+              <Link to={`/projects/${project.id}/applications`} className="px-4 py-2.5 rounded-lg bg-blue dark:bg-blue-dark text-white text-sm font-semibold">
                 Review applications
               </Link>
               <Link to={`/projects/${project.id}/workspace`} className="px-4 py-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 text-sm font-semibold">
@@ -263,7 +263,7 @@ export default function ProjectDetail() {
                 {role.roleSkills?.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {role.roleSkills.map(rs => (
-                      <span key={rs.skillId} className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-sky-soft dark:bg-sky-softdark text-sky-text dark:text-sky-textdark">
+                      <span key={rs.skillId} className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-blue-soft dark:bg-blue-softdark text-blue-text dark:text-blue-textdark">
                         {rs.skill.name}
                       </span>
                     ))}
@@ -279,14 +279,14 @@ export default function ProjectDetail() {
                         className="w-full p-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark text-sm"
                       />
                       <div className="flex gap-2">
-                        <button onClick={() => applyToRole(role.id)} className="px-3 py-1.5 rounded-lg bg-sky dark:bg-sky-dark text-white text-xs font-semibold">
+                        <button onClick={() => applyToRole(role.id)} className="px-3 py-1.5 rounded-lg bg-blue dark:bg-blue-dark text-white text-xs font-semibold">
                           Send application
                         </button>
                         <button onClick={() => setApplyingRoleId(null)} className="text-xs text-ink/50 dark:text-ink-dark/50">Cancel</button>
                       </div>
                     </div>
                   ) : (
-                    <button onClick={() => setApplyingRoleId(role.id)} className="mt-2 text-xs font-semibold text-sky-text dark:text-sky-textdark">
+                    <button onClick={() => setApplyingRoleId(role.id)} className="mt-2 text-xs font-semibold text-blue-text dark:text-blue-textdark">
                       Apply for this role
                     </button>
                   )
@@ -294,7 +294,7 @@ export default function ProjectDetail() {
               </div>
             );
           })}
-          {notice && <p className="text-sm text-teal-text dark:text-teal-textdark mt-3">{notice}</p>}
+          {notice && <p className="text-sm text-green-text dark:text-green-textdark mt-3">{notice}</p>}
           {error && <p className="text-sm text-red-500 mt-3">{error}</p>}
         </div>
       </div>

@@ -2,9 +2,9 @@ import React from 'react';
 import { avatarUrl } from '../lib/api';
 
 const COLORS = [
-  { bg: 'bg-sky dark:bg-sky-dark' },
-  { bg: 'bg-teal dark:bg-teal-dark' },
-  { bg: 'bg-amber dark:bg-amber-dark' }
+  { bg: 'bg-blue dark:bg-blue-dark' },
+  { bg: 'bg-green dark:bg-green-dark' },
+  { bg: 'bg-ink/20 dark:bg-ink-dark/20' }
 ];
 
 function initials(name) {
@@ -17,7 +17,7 @@ function initials(name) {
 // rings, chat, roster, nav.
 export function VerifiedBadge({ size = 16 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className="text-sky dark:text-sky-dark inline-block" title="Verified">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className="text-blue dark:text-blue-dark inline-block" title="Verified">
       <path d="M12 2l2.2 2.2 3-.7 1 3 3 1-.7 3L22 12l-2.2 2.2.7 3-3 1-1 3-3-.7L12 22l-2.2-2.2-3 .7-1-3-3-1 .7-3L2 12l2.2-2.2-.7-3 3-1 1-3 3 .7z" />
       <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -75,7 +75,7 @@ export function SlotSummary({ roles }) {
   const filled = roles.reduce((sum, r) => sum + (r.memberships?.length || 0), 0);
   const full = filled >= total;
   return (
-    <span className={`text-xs font-mono px-2 py-1 rounded-md ${full ? 'bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark' : 'bg-sky-soft dark:bg-sky-softdark text-sky-text dark:text-sky-textdark'}`}>
+    <span className={`text-xs font-mono px-2 py-1 rounded-md ${full ? 'bg-green-soft dark:bg-green-softdark text-green-text dark:text-green-textdark' : 'bg-blue-soft dark:bg-blue-softdark text-blue-text dark:text-blue-textdark'}`}>
       {filled}/{total} {full ? 'full' : 'filled'}
     </span>
   );

@@ -137,7 +137,7 @@ export default function EditProject() {
         </div>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
-        <button className="w-full p-3 rounded-lg bg-sky dark:bg-sky-dark text-white font-semibold">
+        <button className="w-full p-3 rounded-lg bg-blue dark:bg-blue-dark text-white font-semibold">
           {saved ? 'Saved' : 'Save changes'}
         </button>
       </form>
@@ -176,12 +176,12 @@ export default function EditProject() {
             </div>
             {roleError && <p className="text-sm text-red-500">{roleError}</p>}
             <div className="flex gap-2">
-              <button className="px-3 py-1.5 rounded-lg bg-teal dark:bg-teal-dark text-white text-xs font-semibold">Add role</button>
+              <button className="px-3 py-1.5 rounded-lg bg-green dark:bg-green-dark text-white text-xs font-semibold">Add role</button>
               <button type="button" onClick={() => setAddingRole(false)} className="text-xs text-ink/50 dark:text-ink-dark/50">Cancel</button>
             </div>
           </form>
         ) : (
-          <button onClick={() => setAddingRole(true)} className="text-sm font-semibold text-sky-text dark:text-sky-textdark">
+          <button onClick={() => setAddingRole(true)} className="text-sm font-semibold text-blue-text dark:text-blue-textdark">
             + Add a role vacancy
           </button>
         )}
@@ -197,7 +197,7 @@ export default function EditProject() {
         <form onSubmit={searchInvitees} className="flex gap-2 mb-3">
           <input value={inviteQuery} onChange={e => setInviteQuery(e.target.value)} placeholder="Search by name or email"
             className="flex-1 p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
-          <button className="px-4 py-2.5 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold">Search</button>
+          <button className="px-4 py-2.5 rounded-lg bg-blue dark:bg-blue-dark text-white text-sm font-semibold">Search</button>
         </form>
         {inviteResults.length > 0 && (
           <div className="space-y-2 mb-2">
@@ -207,14 +207,14 @@ export default function EditProject() {
                   <span className="font-medium">{u.name || 'Unnamed'}</span>
                   {u.headline && <span className="text-xs text-ink/50 dark:text-ink-dark/50 ml-2">{u.headline}</span>}
                 </div>
-                <button onClick={() => sendInvite(u.id)} className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-teal dark:bg-teal-dark text-white">
+                <button onClick={() => sendInvite(u.id)} className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-green dark:bg-green-dark text-white">
                   Invite
                 </button>
               </div>
             ))}
           </div>
         )}
-        {inviteMessage && <p className="text-sm text-teal-text dark:text-teal-textdark">{inviteMessage}</p>}
+        {inviteMessage && <p className="text-sm text-green-text dark:text-green-textdark">{inviteMessage}</p>}
         {inviteError && <p className="text-sm text-red-500">{inviteError}</p>}
       </div>
     </div>

@@ -15,12 +15,12 @@ export default function ActivityFeed({ activities, showProject = false, emptyTex
     <div className="space-y-2">
       {activities.map(a => (
         <div key={a.id} className="flex items-start gap-2 text-sm">
-          <span className="font-mono text-xs text-sky-text dark:text-sky-textdark w-4 shrink-0">{ACTIVITY_ICON[a.type] || '•'}</span>
+          <span className="font-mono text-xs text-blue-text dark:text-blue-textdark w-4 shrink-0">{ACTIVITY_ICON[a.type] || '•'}</span>
           <span className="text-ink/70 dark:text-ink-dark/70">
             {a.message}
             {showProject && a.project && (
               <>
-                {' '}on <Link to={`/projects/${a.project.id}`} className="font-medium hover:text-sky-text dark:hover:text-sky-textdark">{a.project.title}</Link>
+                {' '}on <Link to={`/projects/${a.project.id}`} className="font-medium hover:text-blue-text dark:hover:text-blue-textdark">{a.project.title}</Link>
               </>
             )}
           </span>

@@ -110,7 +110,7 @@ export default function ProfileEdit() {
 
       <div className="flex items-center gap-4 mb-6">
         <Avatar user={profile} size={72} />
-        <label className="text-sm font-semibold text-sky-text dark:text-sky-textdark cursor-pointer">
+        <label className="text-sm font-semibold text-blue-text dark:text-blue-textdark cursor-pointer">
           {avatarUploading ? 'Uploading…' : 'Change photo'}
           <input type="file" accept="image/*" onChange={handleAvatarChange} disabled={avatarUploading} className="hidden" />
         </label>
@@ -169,7 +169,7 @@ export default function ProfileEdit() {
           {AVAILABILITY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
 
-        <button className="w-full p-3 rounded-lg bg-sky dark:bg-sky-dark text-white font-semibold">
+        <button className="w-full p-3 rounded-lg bg-blue dark:bg-blue-dark text-white font-semibold">
           {saved ? 'Saved' : 'Save changes'}
         </button>
       </form>
@@ -181,7 +181,7 @@ export default function ProfileEdit() {
             <p className="text-sm text-ink/50 dark:text-ink-dark/50">No tagged skills yet.</p>
           )}
           {profile.userSkills?.map(us => (
-            <span key={us.skillId} className="flex items-center gap-2 font-mono text-xs px-3 py-1.5 rounded-md bg-sky-soft dark:bg-sky-softdark text-sky-text dark:text-sky-textdark">
+            <span key={us.skillId} className="flex items-center gap-2 font-mono text-xs px-3 py-1.5 rounded-md bg-blue-soft dark:bg-blue-softdark text-blue-text dark:text-blue-textdark">
               {us.skill.name} · L{us.level}
               <button onClick={() => removeSkill(us.skillId)} className="opacity-60 hover:opacity-100">✕</button>
             </span>
@@ -198,7 +198,7 @@ export default function ProfileEdit() {
           >
             {[1, 2, 3, 4, 5].map(l => <option key={l} value={l}>Level {l}</option>)}
           </select>
-          <button className="px-4 py-2.5 rounded-lg bg-teal dark:bg-teal-dark text-white text-sm font-semibold">Add</button>
+          <button className="px-4 py-2.5 rounded-lg bg-green dark:bg-green-dark text-white text-sm font-semibold">Add</button>
         </form>
         {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
       </div>
