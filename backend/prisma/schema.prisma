@@ -123,6 +123,7 @@ model User {
   activities      Activity[]
   resetTokens     PasswordResetToken[]
   notifications   Notification[]
+  pushSubscriptions PushSubscription[]
   following       Follow[] @relation("Following")
   followers       Follow[] @relation("Followers")
   // completedProjects, responseRate, averageRating are intentionally NOT
@@ -353,4 +354,14 @@ model Follow {
   createdAt   DateTime @default(now())
 
   @@unique([followerId, followingId])
+}
+
+model PushSubscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
 }

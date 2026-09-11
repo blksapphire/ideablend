@@ -1,20 +1,17 @@
 const prisma = require('../prisma');
 const { sendMail } = require('./mailer');
+const { sendPush } = require('./push');
 
-// events worth an email, not just an in-app badge. Deliberately excludes
-// NEW_MESSAGE, TASK_COMPLETED, MILESTONE_COMPLETED - those fire constantly
-// on an active project and would flood someone's inbox within a day.
 const EMAIL_WORTHY = new Set([
   'APPLICATION_RECEIVED', 'APPLICATION_ACCEPTED', 'APPLICATION_REJECTED',
   'MEMBER_REMOVED', 'PROJECT_COMPLETED', 'REVIEW_RECEIVED'
 ]);
 
-// `client` can be the plain prisma singleton or a $transaction client (tx) -
-// the notification row is created with whatever's passed in, so this can be
-// called inside or outside a transaction. Email always uses the plain
-// prisma singleton for the lookup and fires after, best-effort.
 async function notify(client, { userId, type, message, link }) {
   await client.notification.create({ data: { userId, type, message, link } });
+
+  // push fires for every type - the user already opted in at the device level
+  sendPush(userId, { title: 'Idea Blend', body: message, url: link }).catch(() => {});
 
   if (EMAIL_WORTHY.has(type)) {
     const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
@@ -24,7 +21,7 @@ async function notify(client, { userId, type, message, link }) {
         to: user.email,
         subject: 'Idea Blend notification',
         html: `<p>${message}</p>${url ? `<p><a href="${url}">View on Idea Blend</a></p>` : ''}`
-      }).catch(() => {}); // never let an email failure break the main request
+      }).catch(() => {});
     }
   }
 }

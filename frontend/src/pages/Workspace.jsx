@@ -51,7 +51,7 @@ function Roster({ project, isOwner, onChanged }) {
           <div key={membership.id} className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <Avatar user={membership.user} size={28} />
-              <Link to={`/users/${membership.user?.id}`} className="font-medium hover:text-sky-text dark:hover:text-sky-textdark">{membership.user?.name || membership.user?.email}</Link>
+              <Link to={`/users/${membership.user?.id}`} className="font-medium hover:text-blue-text dark:hover:text-blue-textdark">{membership.user?.name || membership.user?.email}</Link>
               <span className="font-mono text-xs text-ink/50 dark:text-ink-dark/50">— {role.name}</span>
             </div>
             {isOwner && (
@@ -66,7 +66,7 @@ function Roster({ project, isOwner, onChanged }) {
                 </div>
               ) : (
                 <div className="flex items-center gap-3 text-xs">
-                  <button onClick={() => setReassigning(membership.id)} className="font-semibold text-sky-text dark:text-sky-textdark">Reassign</button>
+                  <button onClick={() => setReassigning(membership.id)} className="font-semibold text-blue-text dark:text-blue-textdark">Reassign</button>
                   <button onClick={() => removeFromRole(membership.id)} className="text-ink/50 dark:text-ink-dark/50">Remove from role</button>
                   <button onClick={() => removeFromProject(membership.user.id)} className="text-red-500">Remove entirely</button>
                 </div>
@@ -111,13 +111,13 @@ function ReviewTeammates({ projectId }) {
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map(n => (
                   <button key={n} onClick={() => setRatings(r => ({ ...r, [p.id]: n }))}
-                    className={n <= (ratings[p.id] || 5) ? 'text-teal dark:text-teal-dark' : 'text-ink/20 dark:text-ink-dark/20'}>★</button>
+                    className={n <= (ratings[p.id] || 5) ? 'text-green dark:text-green-dark' : 'text-ink/20 dark:text-ink-dark/20'}>★</button>
                 ))}
               </div>
             </div>
             <input value={comments[p.id] || ''} onChange={e => setComments(c => ({ ...c, [p.id]: e.target.value }))} placeholder="Optional comment"
               className="w-full mt-2 p-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark text-sm" />
-            <button onClick={() => submitReview(p.id)} className="mt-2 px-3 py-1.5 rounded-lg bg-teal dark:bg-teal-dark text-white text-xs font-semibold">Submit review</button>
+            <button onClick={() => submitReview(p.id)} className="mt-2 px-3 py-1.5 rounded-lg bg-green dark:bg-green-dark text-white text-xs font-semibold">Submit review</button>
           </div>
         ))}
       </div>
@@ -154,7 +154,7 @@ function Milestones({ projectId }) {
       </div>
       {milestones.length > 0 && (
         <div className="h-1.5 rounded-full bg-page dark:bg-pagedark mb-3 overflow-hidden">
-          <div className="h-full bg-teal dark:bg-teal-dark" style={{ width: `${progress}%` }} />
+          <div className="h-full bg-green dark:bg-green-dark" style={{ width: `${progress}%` }} />
         </div>
       )}
       <div className="space-y-1.5 mb-3">
@@ -169,7 +169,7 @@ function Milestones({ projectId }) {
       <form onSubmit={addMilestone} className="flex gap-2">
         <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Add a milestone"
           className="flex-1 p-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark text-sm" />
-        <button className="px-3 py-2 rounded-lg bg-sky dark:bg-sky-dark text-white text-xs font-semibold">Add</button>
+        <button className="px-3 py-2 rounded-lg bg-blue dark:bg-blue-dark text-white text-xs font-semibold">Add</button>
       </form>
       {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
     </div>
@@ -212,7 +212,7 @@ function TaskBoard({ projectId, tasks, setTasks, isOwner }) {
       <form onSubmit={addTask} className="flex gap-2 mb-4">
         <input value={newTask} onChange={e => setNewTask(e.target.value)} placeholder="Add a task"
           className="flex-1 p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
-        <button className="px-4 py-2.5 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold">Add</button>
+        <button className="px-4 py-2.5 rounded-lg bg-blue dark:bg-blue-dark text-white text-sm font-semibold">Add</button>
       </form>
       {taskError && <p className="text-sm text-red-500 mb-3">{taskError}</p>}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -229,7 +229,7 @@ function TaskBoard({ projectId, tasks, setTasks, isOwner }) {
                 <div key={task.id} className="bg-surface dark:bg-surfacedark border border-ink/20 dark:border-ink-dark/20 rounded-lg p-3 text-sm mb-2">
                   <p>{task.title}</p>
                   {locked ? (
-                    <p className="mt-2 text-xs font-mono text-sky-text dark:text-sky-textdark">Awaiting owner review</p>
+                    <p className="mt-2 text-xs font-mono text-blue-text dark:text-blue-textdark">Awaiting owner review</p>
                   ) : (
                     <select value={task.status} onChange={e => moveTask(task.id, e.target.value)}
                       className="mt-2 text-xs bg-transparent border border-ink/20 dark:border-ink-dark/20 rounded-md p-1 w-full">
@@ -269,7 +269,7 @@ function ChatPanel({ projectId, messages, user }) {
               <Avatar user={m.author} size={22} />
               <div className={mine ? 'text-right' : 'text-left'}>
                 <div className="font-mono text-[10px] text-ink/40 dark:text-ink-dark/40 mb-0.5">
-                  {m.author ? <Link to={`/users/${m.author.id}`} className="hover:text-sky-text dark:hover:text-sky-textdark">{m.author.name}</Link> : 'Unknown'}
+                  {m.author ? <Link to={`/users/${m.author.id}`} className="hover:text-blue-text dark:hover:text-blue-textdark">{m.author.name}</Link> : 'Unknown'}
                 </div>
                 <div className="inline-block bg-page dark:bg-pagedark rounded-lg px-3 py-1.5 text-sm max-w-md break-words">{m.content}</div>
               </div>
@@ -281,7 +281,7 @@ function ChatPanel({ projectId, messages, user }) {
       <div className="flex gap-2 mt-3">
         <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendMessage()}
           placeholder="Message the team" className="flex-1 p-2 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-page dark:bg-pagedark text-sm" />
-        <button onClick={sendMessage} className="px-3 py-2 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold">Send</button>
+        <button onClick={sendMessage} className="px-3 py-2 rounded-lg bg-blue dark:bg-blue-dark text-white text-sm font-semibold">Send</button>
       </div>
     </div>
   );
@@ -328,7 +328,7 @@ export default function Workspace() {
         {TABS.map(t => (
           <button
             key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap ${tab === t.key ? 'border-sky dark:border-sky-dark text-ink dark:text-ink-dark' : 'border-transparent text-ink/50 dark:text-ink-dark/50'}`}
+            className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap ${tab === t.key ? 'border-blue dark:border-blue-dark text-ink dark:text-ink-dark' : 'border-transparent text-ink/50 dark:text-ink-dark/50'}`}
           >
             {t.label}
           </button>
@@ -339,8 +339,8 @@ export default function Workspace() {
         <div className="space-y-6 mb-6">
           {project.category && (
             <div className="flex flex-wrap gap-1.5">
-              <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-amber-soft dark:bg-amber-softdark text-amber-text dark:text-amber-textdark">{project.category.toUpperCase()}</span>
-              <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-sky-soft dark:bg-sky-softdark text-sky-text dark:text-sky-textdark">{project.stage}</span>
+              <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-ink/8 dark:bg-ink-dark/8 text-ink/70 dark:text-ink-dark/70">{project.category.toUpperCase()}</span>
+              <span className="font-mono text-[11px] px-2 py-1 rounded-md bg-blue-soft dark:bg-blue-softdark text-blue-text dark:text-blue-textdark">{project.stage}</span>
             </div>
           )}
           {tasks.length > 0 && (
@@ -350,7 +350,7 @@ export default function Workspace() {
                 <span className="font-mono text-xs text-ink/50 dark:text-ink-dark/50">{doneCount}/{tasks.length} done · {taskProgress}%</span>
               </div>
               <div className="h-1.5 rounded-full bg-page dark:bg-pagedark overflow-hidden">
-                <div className="h-full bg-sky dark:bg-sky-dark" style={{ width: `${taskProgress}%` }} />
+                <div className="h-full bg-blue dark:bg-blue-dark" style={{ width: `${taskProgress}%` }} />
               </div>
             </div>
           )}

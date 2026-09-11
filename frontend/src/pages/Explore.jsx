@@ -22,7 +22,7 @@ function RecommendedForYou({ user }) {
     <section className="mb-8">
       <div className="flex items-center gap-2 mb-3">
         <h2 className="font-display font-bold text-base">Recommended for you</h2>
-        <span className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark">SMART MATCH</span>
+        <span className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-green-soft dark:bg-green-softdark text-green-text dark:text-green-textdark">SMART MATCH</span>
       </div>
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
         {recs.map(p => (
@@ -165,7 +165,7 @@ function BuildersBrowse() {
           className="flex-1 min-w-[200px] p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
         <input value={skill} onChange={e => setSkill(e.target.value)} placeholder="Skill (e.g. React)"
           className="w-48 p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm" />
-        <button className="px-4 py-2.5 rounded-lg bg-sky dark:bg-sky-dark text-white text-sm font-semibold">Search</button>
+        <button className="px-4 py-2.5 rounded-lg bg-blue dark:bg-blue-dark text-white text-sm font-semibold">Search</button>
       </form>
 
       {loading ? (
@@ -207,8 +207,8 @@ export default function Explore() {
       <LiveActivity />
 
       <div className="flex gap-2 mb-4">
-        <button onClick={() => setMode('projects')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'projects' ? 'bg-sky dark:bg-sky-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}>Projects</button>
-        <button onClick={() => setMode('builders')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'builders' ? 'bg-sky dark:bg-sky-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}>Builders</button>
+        <button onClick={() => setMode('projects')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'projects' ? 'bg-blue dark:bg-blue-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}>Projects</button>
+        <button onClick={() => setMode('builders')} className={`px-4 py-2 rounded-lg text-sm font-semibold ${mode === 'builders' ? 'bg-blue dark:bg-blue-dark text-white' : 'border border-ink/25 dark:border-ink-dark/25'}`}>Builders</button>
       </div>
 
       {mode === 'projects' ? <ProjectsBrowse /> : <BuildersBrowse />}

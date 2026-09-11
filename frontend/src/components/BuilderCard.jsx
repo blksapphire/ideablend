@@ -24,7 +24,7 @@ export default function BuilderCard({ user, onInvite, inviteLabel = 'Invite' }) 
       </div>
 
       {user.availability && (
-        <span className="inline-block font-mono text-[10px] px-2 py-0.5 rounded-md bg-teal-soft dark:bg-teal-softdark text-teal-text dark:text-teal-textdark mt-2">
+        <span className="inline-block font-mono text-[10px] px-2 py-0.5 rounded-md bg-green-soft dark:bg-green-softdark text-green-text dark:text-green-textdark mt-2">
           {AVAILABILITY_LABELS[user.availability]}
         </span>
       )}
@@ -32,7 +32,7 @@ export default function BuilderCard({ user, onInvite, inviteLabel = 'Invite' }) 
       {user.userSkills?.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-2">
           {user.userSkills.slice(0, 4).map(us => (
-            <span key={us.skillId} className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-sky-soft dark:bg-sky-softdark text-sky-text dark:text-sky-textdark">
+            <span key={us.skillId} className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-blue-soft dark:bg-blue-softdark text-blue-text dark:text-blue-textdark">
               {us.skill.name}
             </span>
           ))}
@@ -45,7 +45,7 @@ export default function BuilderCard({ user, onInvite, inviteLabel = 'Invite' }) 
     return (
       <div className="rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4">
         {content}
-        <button onClick={() => onInvite(user)} className="mt-3 w-full text-xs font-semibold px-3 py-1.5 rounded-lg bg-sky dark:bg-sky-dark text-white">
+        <button onClick={() => onInvite(user)} className="mt-3 w-full text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue dark:bg-blue-dark text-white">
           {inviteLabel}
         </button>
       </div>
@@ -53,7 +53,7 @@ export default function BuilderCard({ user, onInvite, inviteLabel = 'Invite' }) 
   }
 
   return (
-    <Link to={`/users/${user.id}`} className="block rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4 hover:border-sky/40 dark:hover:border-sky-dark/40 transition-colors">
+    <Link to={`/users/${user.id}`} className="block rounded-2xl border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark p-4 hover:border-blue/40 dark:hover:border-blue-dark/40 transition-colors">
       {content}
     </Link>
   );

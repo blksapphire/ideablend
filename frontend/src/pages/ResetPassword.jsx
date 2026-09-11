@@ -31,7 +31,7 @@ export default function ResetPassword() {
     return (
       <div className="max-w-sm mx-auto px-6 py-16 text-center">
         <p className="text-sm text-ink/60 dark:text-ink-dark/60">Missing reset token. Use the link from your reset email.</p>
-        <Link to="/forgot-password" className="text-sm text-sky-text dark:text-sky-textdark font-medium mt-2 inline-block">Request a new link</Link>
+        <Link to="/forgot-password" className="text-sm text-blue-text dark:text-blue-textdark font-medium mt-2 inline-block">Request a new link</Link>
       </div>
     );
   }
@@ -40,13 +40,13 @@ export default function ResetPassword() {
     <div className="max-w-sm mx-auto px-6 py-16">
       <h1 className="font-display font-bold text-2xl mb-6">Set a new password</h1>
       {done ? (
-        <p className="text-sm text-teal-text dark:text-teal-textdark">Password updated — redirecting to sign in…</p>
+        <p className="text-sm text-green-text dark:text-green-textdark">Password updated — redirecting to sign in…</p>
       ) : (
         <form onSubmit={submit} className="space-y-3">
           <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="New password"
             className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
           {error && <p className="text-sm text-red-500">{error}</p>}
-          <button disabled={loading} className="w-full p-3 rounded-lg bg-sky dark:bg-sky-dark text-white font-semibold">
+          <button disabled={loading} className="w-full p-3 rounded-lg bg-blue dark:bg-blue-dark text-white font-semibold">
             {loading ? 'Updating…' : 'Update password'}
           </button>
         </form>

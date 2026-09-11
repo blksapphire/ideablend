@@ -41,12 +41,12 @@ export default function Register() {
         <input value={fields.skills} onChange={set('skills')} placeholder="Skills, comma separated"
           className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
         {error && <p className="text-sm text-red-500">{error}</p>}
-        <button disabled={loading} className="w-full p-3 rounded-lg bg-sky dark:bg-sky-dark text-white font-semibold">
+        <button disabled={loading} className="w-full p-3 rounded-lg bg-blue dark:bg-blue-dark text-white font-semibold">
           {loading ? 'Creating account…' : 'Create account'}
         </button>
       </form>
       <p className="text-sm text-ink/60 dark:text-ink-dark/60 mt-4">
-        Already have an account? <Link to="/login" className="text-sky-text dark:text-sky-textdark font-medium">Sign in</Link>
+        Already have an account? <Link to="/login" className="text-blue-text dark:text-blue-textdark font-medium">Sign in</Link>
       </p>
     </div>
   );
