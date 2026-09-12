@@ -123,7 +123,8 @@ model User {
   activities      Activity[]
   resetTokens     PasswordResetToken[]
   notifications   Notification[]
-  pushSubscriptions PushSubscription[]
+  pushSubscriptions   PushSubscription[]
+  agentConversations  AgentConversation[]
   following       Follow[] @relation("Following")
   followers       Follow[] @relation("Followers")
   // completedProjects, responseRate, averageRating are intentionally NOT
@@ -364,4 +365,44 @@ model PushSubscription {
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
+}
+
+model AgentConversation {
+  id        Int            @id @default(autoincrement())
+  userId    Int
+  user      User           @relation(fields: [userId], references: [id])
+  projectId Int?           // null = platform-wide, set = workspace-scoped
+  title     String         @default("New conversation")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  messages  AgentMessage[]
+}
+
+model AgentMessage {
+  id             Int                @id @default(autoincrement())
+  conversationId Int
+  conversation   AgentConversation  @relation(fields: [conversationId], references: [id])
+  role           AgentRole
+  content        String             // text for user/assistant, JSON for tool calls
+  createdAt      DateTime           @default(now())
+  toolCalls      AgentToolCall[]
+}
+
+model AgentToolCall {
+  id          Int          @id @default(autoincrement())
+  messageId   Int
+  message     AgentMessage @relation(fields: [messageId], references: [id])
+  tool        String
+  input       String       // JSON
+  output      String?      // JSON — null if still in progress or failed
+  succeeded   Boolean      @default(false)
+  durationMs  Int?
+  createdAt   DateTime     @default(now())
+}
+
+enum AgentRole {
+  user
+  assistant
+  tool_use
+  tool_result
 }
