@@ -1,6 +1,9 @@
-<svg width="64" height="64" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M14 2 L2 14 L14 14 Z" fill="#2563EB" />
-  <path d="M14 14 L26 14 L14 26 Z" fill="#16A34A" />
-  <path d="M14 2 L26 14 L14 14 Z" fill="#09090B" opacity="0.12" />
-  <path d="M2 14 L14 14 L14 26 Z" fill="#09090B" opacity="0.12" />
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#16A34A" />
+    </linearGradient>
+  </defs>
+  <rect x="14" y="14" width="36" height="36" rx="11" fill="url(#g)" transform="rotate(45 32 32)" />
 </svg>

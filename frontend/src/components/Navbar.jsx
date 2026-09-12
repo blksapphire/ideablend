@@ -22,6 +22,7 @@ function BlendLogo() {
 
 const MENU_ITEMS = [
   { to: '/explore', label: 'Discover' },
+  { to: '/assistant', label: '✦ Assistant' },
   { to: '/my-projects', label: 'My Projects' },
   { to: '/my-applications', label: 'My Applications' },
   { to: '/notifications', label: 'Notifications' },

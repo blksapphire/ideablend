@@ -27,6 +27,7 @@ const discoverRoutes = require('./routes/discover');
 const notificationsRoutes = require('./routes/notifications');
 const followsRoutes = require('./routes/follows');
 const pushRoutes = require('./routes/push');
+const agentRoutes = require('./routes/agent');
 
 const app = express();
 app.use(cors());
@@ -71,6 +72,7 @@ app.use('/api', discoverRoutes);
 app.use('/api', notificationsRoutes);
 app.use('/api', followsRoutes);
 app.use('/api', pushRoutes);
+app.use('/api', agentRoutes);
 
 app.get('/', (req, res) => res.json({ ok: true, platform: 'Idea Blend' }));
 

@@ -10,6 +10,7 @@
     "prisma:generate": "prisma generate"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
     "@prisma/client": "^5.14.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
