@@ -18,11 +18,11 @@ export default function Profile() {
   }, [authUser]);
 
   if (!authUser) return <SignInPrompt message="Sign in to view your profile." />;
-  if (!profile) return <p className="max-w-lg mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
+  if (!profile) return <p className="max-w-6xl mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
 
   return (
-    <div className="max-w-lg mx-auto px-6 py-12">
+    <main className="max-w-6xl mx-auto px-4 py-6 sm:px-6 sm:py-10">
       <ProfileView profile={profile} reviews={reviews} isOwnProfile />
-    </div>
+    </main>
   );
 }
