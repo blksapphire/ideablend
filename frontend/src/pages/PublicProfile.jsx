@@ -15,13 +15,13 @@ export default function PublicProfile() {
     get(`/users/${id}/reviews`).then(setReviews);
   }, [id]);
 
-  if (!profile) return <p className="max-w-lg mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
+  if (!profile) return <p className="max-w-6xl mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
 
   const isOwnProfile = authUser && authUser.id === profile.id;
 
   return (
-    <div className="max-w-lg mx-auto px-6 py-12">
+    <main className="max-w-6xl mx-auto px-4 py-6 sm:px-6 sm:py-10">
       <ProfileView profile={profile} reviews={reviews} isOwnProfile={isOwnProfile} />
-    </div>
+    </main>
   );
 }
