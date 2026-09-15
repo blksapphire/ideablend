@@ -115,9 +115,9 @@ export default function Navbar() {
       {mobileSearchOpen && <div className="md:hidden px-5 pb-3"><GlobalSearch /></div>}
 
       {mobileOpen && (
-        <div className="sm:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="absolute top-0 right-0 h-full w-[min(22rem,88vw)] bg-surface dark:bg-surfacedark shadow-2xl flex flex-col px-6 py-6">
+        <div className="sm:hidden fixed inset-0 z-[100] isolate">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
+          <aside className="absolute top-0 right-0 h-full w-[min(22rem,88vw)] bg-white dark:bg-[#09090B] opacity-100 backdrop-blur-none shadow-2xl border-l border-black/10 dark:border-white/10 flex flex-col px-6 py-6 overflow-y-auto">
             <div className="flex items-center justify-between mb-8">
               <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2"><BlendLogo /><span className="font-display font-bold text-base">Idea Blend</span></Link>
               <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-ink/5 dark:hover:bg-ink-dark/5">×</button>
@@ -143,7 +143,7 @@ export default function Navbar() {
               <button onClick={toggleTheme} className="text-sm font-medium">Toggle theme</button>
               {user && <button onClick={handleLogout} className="text-sm text-red-500">Sign out</button>}
             </div>
-          </div>
+          </aside>
         </div>
       )}
     </header>
