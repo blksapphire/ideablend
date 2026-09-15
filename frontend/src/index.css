@@ -42,7 +42,7 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
   }
 
   .ib-button-secondary {
-    @apply inline-flex items-center justify-center rounded-xl border border-ink/12 dark:border-ink-dark/12 bg-surface/80 dark:bg-surfacedark/80 px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:border-ink/25 dark:hover:border-ink-dark/25 hover:bg-white dark:hover:bg-zinc-800;
+    @apply inline-flex items-center justify-center rounded-xl border border-ink/10 dark:border-ink-dark/10 bg-surface/80 dark:bg-surfacedark/80 px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:border-ink/25 dark:hover:border-ink-dark/25 hover:bg-white dark:hover:bg-zinc-800;
   }
 
   .ib-kicker {
