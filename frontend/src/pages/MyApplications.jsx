@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { get, post } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import SignInPrompt from '../components/SignInPrompt';
 
 export default function MyApplications() {
+  const { user } = useAuth();
   const [applications, setApplications] = useState([]);
   const [error, setError] = useState('');
 
   async function load() {
-    const data = await get('/applications/mine');
-    setApplications(data);
+    try {
+      const data = await get('/applications/mine');
+      setApplications(data);
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (user) load(); }, [user]);
 
   async function act(appId, action) {
     setError('');
@@ -22,6 +29,8 @@ export default function MyApplications() {
       setError(err.message);
     }
   }
+
+  if (!user) return <SignInPrompt message="Sign in to see your applications." />;
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">

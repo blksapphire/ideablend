@@ -7,7 +7,14 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const raw = localStorage.getItem('ib_user');
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      // corrupted/legacy value would otherwise crash the whole app at boot
+      localStorage.removeItem('ib_user');
+      return null;
+    }
   });
 
   function persist(token, user) {

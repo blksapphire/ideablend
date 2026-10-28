@@ -14,10 +14,18 @@ router.get('/push/vapid-public-key', (req, res) => {
 
 // browser sends its subscription object here after calling
 // serviceWorkerRegistration.pushManager.subscribe()
+// Push endpoints are URLs the server makes requests to, so only the real
+// browser push services are accepted - otherwise a subscribe request could
+// turn this into an SSRF probe against internal hosts.
+const PUSH_ENDPOINT_RE = /^https:\/\/([a-z0-9-]+\.)*(fcm\.googleapis\.com|push\.services\.mozilla\.com|notify\.windows\.com|push\.apple\.com)\//i;
+
 router.post('/push/subscribe', requireAuth, asyncHandler(async (req, res) => {
   const { endpoint, keys } = req.body;
-  if (!endpoint || !keys?.p256dh || !keys?.auth) {
-    return res.status(400).json({ error: 'invalid subscription object' });
+  if (typeof endpoint !== 'string' || endpoint.length > 1000 || !PUSH_ENDPOINT_RE.test(endpoint)) {
+    return res.status(400).json({ error: 'invalid subscription endpoint' });
+  }
+  if (typeof keys?.p256dh !== 'string' || typeof keys?.auth !== 'string') {
+    return res.status(400).json({ error: 'invalid subscription keys' });
   }
 
   await prisma.pushSubscription.upsert({

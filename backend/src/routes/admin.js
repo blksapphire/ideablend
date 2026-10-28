@@ -2,6 +2,7 @@ const express = require('express');
 const prisma = require('../prisma');
 const { requireAuth, requireAdmin } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../lib/asyncHandler');
+const { requireIntParam } = require('../lib/validate');
 
 const router = express.Router();
 
@@ -76,26 +77,26 @@ router.get('/users', requireAuth, requireAdmin, asyncHandler(async (req, res) =>
 // other people's project history). Banning blocks login/API access via
 // requireAuth without touching any of that data.
 router.post('/users/:id/verify', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
-  const id = Number(req.params.id);
+  const id = requireIntParam(req.params.id, 'user id');
   const updated = await prisma.user.update({ where: { id }, data: { isVerified: true }, select: { id: true, email: true, isVerified: true } });
   res.json(updated);
 }));
 
 router.post('/users/:id/unverify', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
-  const id = Number(req.params.id);
+  const id = requireIntParam(req.params.id, 'user id');
   const updated = await prisma.user.update({ where: { id }, data: { isVerified: false }, select: { id: true, email: true, isVerified: true } });
   res.json(updated);
 }));
 
 router.post('/users/:id/ban', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
-  const id = Number(req.params.id);
+  const id = requireIntParam(req.params.id, 'user id');
   if (id === req.user.id) return res.status(400).json({ error: "can't ban yourself" });
   const updated = await prisma.user.update({ where: { id }, data: { isBanned: true }, select: { id: true, email: true, isBanned: true } });
   res.json(updated);
 }));
 
 router.post('/users/:id/unban', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
-  const id = Number(req.params.id);
+  const id = requireIntParam(req.params.id, 'user id');
   const updated = await prisma.user.update({ where: { id }, data: { isBanned: false }, select: { id: true, email: true, isBanned: true } });
   res.json(updated);
 }));
@@ -106,7 +107,7 @@ router.post('/users/:id/unban', requireAuth, requireAdmin, asyncHandler(async (r
 // user's projects/messages/reviews/tasks referencing this id stay intact.
 // This cannot be undone: the original email/name/bio etc. are gone for good.
 router.post('/users/:id/remove', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
-  const id = Number(req.params.id);
+  const id = requireIntParam(req.params.id, 'user id');
   if (id === req.user.id) return res.status(400).json({ error: "can't remove yourself" });
 
   const user = await prisma.user.findUnique({ where: { id } });

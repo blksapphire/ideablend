@@ -2,7 +2,7 @@ const express = require('express');
 const prisma = require('../prisma');
 const { requireAuth } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../lib/asyncHandler');
-const { requireIntParam } = require('../lib/validate');
+const { requireIntParam, assertMaxLength } = require('../lib/validate');
 const { activateMembership } = require('../lib/membership');
 const { logActivity } = require('../lib/activity');
 const { notify } = require('../lib/notify');
@@ -29,10 +29,18 @@ router.post('/projects/:projectId/roles/:roleId/apply', requireAuth, asyncHandle
   const role = await prisma.role.findUnique({ where: { id: roleId } });
   if (!role || role.projectId !== projectId) return res.status(404).json({ error: 'role not found' });
 
+  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  if (!project) return res.status(404).json({ error: 'not found' });
+  if (project.visibility === 'PRIVATE' && project.ownerId !== req.user.id) {
+    return res.status(404).json({ error: 'not found' });
+  }
+  if (project.status === 'COMPLETED') return res.status(400).json({ error: 'this project is no longer recruiting' });
+  if (project.ownerId === req.user.id) return res.status(400).json({ error: "can't apply to your own project" });
+
   const existing = await prisma.application.findUnique({ where: { roleId_userId: { roleId, userId: req.user.id } } });
   if (existing) return res.status(400).json({ error: 'already applied to this role' });
 
-  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  assertMaxLength(message, 2000, 'message');
   const application = await prisma.application.create({
     data: { projectId, roleId, userId: req.user.id, message }
   });
@@ -56,11 +64,18 @@ router.get('/projects/:projectId/applications', requireAuth, asyncHandler(async 
   const { roleId, status } = req.query;
   const where = { projectId };
   if (roleId) where.roleId = requireIntParam(roleId, 'role id');
-  if (status) where.status = status;
+  if (status) {
+    if (!['PENDING', 'ACCEPTED', 'CONFIRMED', 'REJECTED', 'WITHDRAWN'].includes(status)) {
+      return res.status(400).json({ error: 'invalid status filter' });
+    }
+    where.status = status;
+  }
 
   const applications = await prisma.application.findMany({
     where,
-    include: { user: { select: { id: true, name: true, skills: true, profilePic: true } }, role: true },
+    // the project owner is allowed to see applicant contact details so they
+    // can follow up; the public project payload never includes emails
+    include: { user: { select: { id: true, name: true, email: true, skills: true, profilePic: true } }, role: true },
     orderBy: { createdAt: 'asc' }
   });
   res.json(applications);
@@ -91,6 +106,10 @@ router.post('/applications/:id/reject', requireAuth, asyncHandler(async (req, re
   const application = await prisma.application.findUnique({ where: { id }, include: { project: true, role: true } });
   if (!application) return res.status(404).json({ error: 'not found' });
   if (application.project.ownerId !== req.user.id) return res.status(403).json({ error: 'not owner' });
+  if (application.status === 'CONFIRMED') return res.status(400).json({ error: 'this person is already a member - remove them from the team instead' });
+  if (application.status === 'REJECTED' || application.status === 'WITHDRAWN') {
+    return res.status(400).json({ error: `cannot reject from status ${application.status}` });
+  }
 
   const updated = await prisma.application.update({ where: { id }, data: { status: 'REJECTED' } });
   await notify(prisma, {

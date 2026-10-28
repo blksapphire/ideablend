@@ -2,7 +2,7 @@ const express = require('express');
 const prisma = require('../prisma');
 const { requireAuth } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../lib/asyncHandler');
-const { requireIntParam, requireFields } = require('../lib/validate');
+const { requireIntParam, requireFields, assertMaxLength } = require('../lib/validate');
 const { assertMember, getOtherMemberIds } = require('../lib/projectAccess');
 const { logActivity } = require('../lib/activity');
 const { notify } = require('../lib/notify');
@@ -25,6 +25,8 @@ router.post('/projects/:projectId/milestones', requireAuth, asyncHandler(async (
 
   requireFields(req.body, ['title']);
   const { title, description } = req.body;
+  assertMaxLength(title, 200, 'title');
+  assertMaxLength(description, 5000, 'description');
 
   const [milestone] = await prisma.$transaction(async (tx) => {
     const m = await tx.milestone.create({ data: { projectId, title, description } });
@@ -44,6 +46,8 @@ router.patch('/milestones/:id', requireAuth, asyncHandler(async (req, res) => {
   if (check.error) return res.status(check.code).json({ error: check.error });
 
   const { completed, title, description } = req.body;
+  assertMaxLength(title, 200, 'title');
+  assertMaxLength(description, 5000, 'description');
   const willComplete = completed === true && !milestone.completed;
 
   const [updated] = await prisma.$transaction(async (tx) => {

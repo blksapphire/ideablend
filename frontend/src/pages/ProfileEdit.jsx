@@ -26,7 +26,13 @@ export default function ProfileEdit() {
   const [avatarUploading, setAvatarUploading] = useState(false);
 
   async function load() {
-    const data = await get('/users/me');
+    let data;
+    try {
+      data = await get('/users/me');
+    } catch (err) {
+      setError(err.message);
+      return;
+    }
     setProfile(data);
     // location is stored as one combined "City, Country" string on the
     // backend - split it here so it can be edited as two separate dropdowns
@@ -46,7 +52,11 @@ export default function ProfileEdit() {
   useEffect(() => { if (authUser) load(); }, [authUser]);
 
   if (!authUser) return <SignInPrompt message="Sign in to edit your profile." />;
-  if (!profile || !fields) return <p className="max-w-lg mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
+  if (!profile || !fields) {
+    return error
+      ? <p className="max-w-lg mx-auto px-6 py-16 text-sm text-red-500">{error}</p>
+      : <p className="max-w-lg mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
+  }
 
   function set(key) {
     return e => setFields(f => ({ ...f, [key]: e.target.value }));
@@ -57,12 +67,17 @@ export default function ProfileEdit() {
 
   async function save(e) {
     e.preventDefault();
-    const location = [fields.city, fields.country].filter(Boolean).join(', ');
-    const { city, country, ...rest } = fields;
-    const updated = await patch('/users/me', { ...rest, location, availability: fields.availability || null });
-    updateUser(updated);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1200);
+    setError('');
+    try {
+      const location = [fields.city, fields.country].filter(Boolean).join(', ');
+      const { city, country, ...rest } = fields;
+      const updated = await patch('/users/me', { ...rest, location, availability: fields.availability || null });
+      updateUser(updated);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1200);
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   async function handleAvatarChange(e) {
@@ -115,6 +130,8 @@ export default function ProfileEdit() {
           <input type="file" accept="image/*" onChange={handleAvatarChange} disabled={avatarUploading} className="hidden" />
         </label>
       </div>
+
+      {error && <p className="text-sm text-red-500 mb-3">{error}</p>}
 
       <form onSubmit={save} className="space-y-3">
         <input value={fields.name} onChange={set('name')} placeholder="Name"

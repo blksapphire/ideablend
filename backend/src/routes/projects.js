@@ -2,7 +2,7 @@ const express = require('express');
 const prisma = require('../prisma');
 const { requireAuth, optionalAuth } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../lib/asyncHandler');
-const { requireIntParam, requireFields } = require('../lib/validate');
+const { requireIntParam, requireFields, optionalHttpUrl, assertMaxLength } = require('../lib/validate');
 const { logActivity } = require('../lib/activity');
 const { notify } = require('../lib/notify');
 const { getOtherMemberIds } = require('../lib/projectAccess');
@@ -13,6 +13,8 @@ const VALID_STAGES = ['IDEA', 'PLANNING', 'MVP', 'BETA', 'LIVE', 'COMPLETED', 'A
 const VALID_TYPES = ['STARTUP', 'OPEN_SOURCE', 'SIDE_PROJECT', 'HACKATHON', 'RESEARCH', 'COMMUNITY', 'EXPERIMENTAL'];
 const VALID_COMMITMENTS = ['VOLUNTEER', 'EQUITY', 'PAID', 'MIXED'];
 const VALID_EXPERIENCE = ['ANY', 'JUNIOR', 'MID', 'SENIOR'];
+const VALID_STATUSES = ['RECRUITING', 'ACTIVE', 'COMPLETED'];
+const VALID_VISIBILITIES = ['PUBLIC', 'PRIVATE'];
 
 const ROLE_INCLUDE = { roleSkills: { include: { skill: true } }, memberships: { where: { active: true }, include: { user: { select: { id: true, name: true, profilePic: true } } } } };
 
@@ -22,11 +24,15 @@ const ROLE_INCLUDE = { roleSkills: { include: { skill: true } }, memberships: { 
 router.post('/', requireAuth, asyncHandler(async (req, res) => {
   const { title, description, category, stage, type, commitment, roles } = req.body;
   requireFields(req.body, ['title', 'description']);
+  assertMaxLength(title, 120, 'title');
+  assertMaxLength(description, 5000, 'description');
+  assertMaxLength(category, 60, 'category');
   if (!Array.isArray(roles) || roles.length === 0) {
     const err = new Error('at least one role required');
     err.status = 400;
     throw err;
   }
+  if (roles.length > 20) return res.status(400).json({ error: 'a project can have at most 20 roles' });
   const badRole = roles.find(r => !r.name || !r.name.trim());
   if (badRole) {
     const err = new Error('every role needs a name');
@@ -37,6 +43,8 @@ router.post('/', requireAuth, asyncHandler(async (req, res) => {
   if (type && !VALID_TYPES.includes(type)) return res.status(400).json({ error: 'invalid type' });
   if (commitment && !VALID_COMMITMENTS.includes(commitment)) return res.status(400).json({ error: 'invalid commitment' });
   for (const r of roles) {
+    assertMaxLength(r.name, 80, 'role name');
+    assertMaxLength(r.description, 1000, 'role description');
     if (r.experience && !VALID_EXPERIENCE.includes(r.experience)) return res.status(400).json({ error: `invalid experience for role ${r.name}` });
     if (r.commitment && !VALID_COMMITMENTS.includes(r.commitment)) return res.status(400).json({ error: `invalid commitment for role ${r.name}` });
   }
@@ -87,15 +95,20 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
   const page = Math.max(1, Number(req.query.page) || 1);
   const pageSize = Math.min(50, Math.max(1, Number(req.query.pageSize) || 12));
 
-  const where = {};
+  if (status && !VALID_STATUSES.includes(status)) return res.status(400).json({ error: 'invalid status filter' });
+  if (stage && !VALID_STAGES.includes(stage)) return res.status(400).json({ error: 'invalid stage filter' });
+  if (type && !VALID_TYPES.includes(type)) return res.status(400).json({ error: 'invalid type filter' });
+  if (commitment && !VALID_COMMITMENTS.includes(commitment)) return res.status(400).json({ error: 'invalid commitment filter' });
+
+  // browse is a public directory: private projects never appear here, no
+  // matter their status
+  const where = { visibility: 'PUBLIC' };
   if (q) where.OR = [{ title: { contains: q, mode: 'insensitive' } }, { description: { contains: q, mode: 'insensitive' } }];
   if (category) where.category = category;
   if (status) where.status = status;
   if (stage) where.stage = stage;
   if (type) where.type = type;
   if (commitment) where.commitment = commitment;
-  // hide completed+private projects from browse unless you're the owner
-  where.NOT = { AND: [{ status: 'COMPLETED' }, { visibility: 'PRIVATE' }] };
 
   const [projects, total] = await Promise.all([
     prisma.project.findMany({
@@ -162,7 +175,22 @@ router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
     }
   });
   if (!project) return res.status(404).json({ error: 'not found' });
-  res.json(withFilledCounts([project])[0]);
+
+  const isOwner = !!req.user && project.ownerId === req.user.id;
+  const isMember = isOwner || (!!req.user && !!(await prisma.membership.findFirst({
+    where: { projectId: id, userId: req.user.id, active: true },
+    select: { id: true }
+  })));
+
+  // a private project must be invisible to everyone outside its team -
+  // 404 rather than 403 so its existence isn't confirmed
+  if (project.visibility === 'PRIVATE' && !isMember) return res.status(404).json({ error: 'not found' });
+
+  const payload = withFilledCounts([project])[0];
+  // the task board is internal workspace data, not part of the public page
+  if (!isMember) delete payload.tasks;
+  payload.viewer = { isOwner, isMember };
+  res.json(payload);
 }));
 
 // owner-only updates: status, visibility, stage/type/commitment, description edits
@@ -173,16 +201,27 @@ router.patch('/:id', requireAuth, asyncHandler(async (req, res) => {
   if (project.ownerId !== req.user.id) return res.status(403).json({ error: 'not owner' });
 
   const { title, description, category, status, visibility, repoUrl, stage, type, commitment } = req.body;
+  if (title !== undefined && !String(title).trim()) return res.status(400).json({ error: 'title cannot be empty' });
+  if (description !== undefined && !String(description).trim()) return res.status(400).json({ error: 'description cannot be empty' });
+  assertMaxLength(title, 120, 'title');
+  assertMaxLength(description, 5000, 'description');
+  assertMaxLength(category, 60, 'category');
   if (stage && !VALID_STAGES.includes(stage)) return res.status(400).json({ error: 'invalid stage' });
   if (type && !VALID_TYPES.includes(type)) return res.status(400).json({ error: 'invalid type' });
   if (commitment && !VALID_COMMITMENTS.includes(commitment)) return res.status(400).json({ error: 'invalid commitment' });
+  if (status && !VALID_STATUSES.includes(status)) return res.status(400).json({ error: 'invalid status' });
+  if (visibility && !VALID_VISIBILITIES.includes(visibility)) return res.status(400).json({ error: 'invalid visibility' });
+  const normalizedRepoUrl = repoUrl !== undefined ? optionalHttpUrl(repoUrl, 'repoUrl') : undefined;
 
   const willComplete = status === 'COMPLETED' && project.status !== 'COMPLETED';
 
   const [updated] = await prisma.$transaction(async (tx) => {
     const p = await tx.project.update({
       where: { id },
-      data: { title, description, category, status, visibility, repoUrl, stage, type, commitment }
+      data: {
+        title, description, category, status, visibility, stage, type, commitment,
+        repoUrl: normalizedRepoUrl
+      }
     });
     if (willComplete) {
       await logActivity(tx, { projectId: id, actorId: req.user.id, type: 'PROJECT_COMPLETED', message: `${req.user.name || 'The owner'} marked this project as completed` });
@@ -212,7 +251,9 @@ router.post('/:id/roles', requireAuth, asyncHandler(async (req, res) => {
   if (project.ownerId !== req.user.id) return res.status(403).json({ error: 'not owner' });
 
   const { name, slots, description, experience, commitment, skills } = req.body;
-  if (!name || !name.trim()) return res.status(400).json({ error: 'role name required' });
+  if (!name || !String(name).trim()) return res.status(400).json({ error: 'role name required' });
+  assertMaxLength(name, 80, 'role name');
+  assertMaxLength(description, 1000, 'role description');
   if (experience && !VALID_EXPERIENCE.includes(experience)) return res.status(400).json({ error: 'invalid experience' });
   if (commitment && !VALID_COMMITMENTS.includes(commitment)) return res.status(400).json({ error: 'invalid commitment' });
 

@@ -1,26 +1,17 @@
 const express = require('express');
-const path = require('path');
-const crypto = require('crypto');
 const multer = require('multer');
 const prisma = require('../prisma');
+const storage = require('../lib/storage');
 const { requireAuth } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../lib/asyncHandler');
-const { requireIntParam, requireFields } = require('../lib/validate');
+const { requireIntParam } = require('../lib/validate');
 const { assertMember } = require('../lib/projectAccess');
 
 const router = express.Router();
 
-const UPLOAD_DIR = path.join(__dirname, '..', '..', 'uploads');
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB - this is for specs/mockups/decks, not code hosting or video
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
-  filename: (req, file, cb) => {
-    const randomName = crypto.randomBytes(16).toString('hex');
-    cb(null, randomName + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage, limits: { fileSize: MAX_FILE_SIZE } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_FILE_SIZE } });
 
 router.get('/projects/:projectId/files', requireAuth, asyncHandler(async (req, res) => {
   const projectId = requireIntParam(req.params.projectId, 'project id');
@@ -41,12 +32,13 @@ router.post('/projects/:projectId/files', requireAuth, upload.single('file'), as
   if (check.error) return res.status(check.code).json({ error: check.error });
   if (!req.file) return res.status(400).json({ error: 'no file provided' });
 
+  const storedName = await storage.saveProjectFile(req.file.buffer, req.file.originalname, req.file.mimetype);
   const record = await prisma.projectFile.create({
     data: {
       projectId,
       uploaderId: req.user.id,
       filename: req.file.originalname,
-      storedName: req.file.filename,
+      storedName,
       mimeType: req.file.mimetype,
       size: req.file.size
     }
@@ -62,7 +54,11 @@ router.get('/files/:id/download', requireAuth, asyncHandler(async (req, res) => 
   const check = await assertMember(file.projectId, req.user.id);
   if (check.error) return res.status(check.code).json({ error: check.error });
 
-  res.download(path.join(UPLOAD_DIR, file.storedName), file.filename);
+  const { stream, contentType } = await storage.openProjectFile(file.storedName);
+  res.setHeader('Content-Type', contentType || file.mimeType || 'application/octet-stream');
+  res.attachment(file.filename);
+  stream.on('error', () => res.end());
+  stream.pipe(res);
 }));
 
 router.delete('/files/:id', requireAuth, asyncHandler(async (req, res) => {
@@ -76,8 +72,7 @@ router.delete('/files/:id', requireAuth, asyncHandler(async (req, res) => {
     return res.status(403).json({ error: 'only the uploader or project owner can delete this file' });
   }
 
-  const fs = require('fs');
-  fs.unlink(path.join(UPLOAD_DIR, file.storedName), () => {}); // best-effort - don't fail the request over a disk cleanup issue
+  await storage.deleteProjectFile(file.storedName);
   await prisma.projectFile.delete({ where: { id } });
   res.json({ ok: true });
 }));

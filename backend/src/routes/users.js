@@ -1,26 +1,28 @@
 const express = require('express');
-const path = require('path');
-const crypto = require('crypto');
 const multer = require('multer');
 const prisma = require('../prisma');
+const storage = require('../lib/storage');
 const { requireAuth, optionalAuth } = require('../middlewares/authMiddleware');
 const { getUserStats } = require('../lib/userStats');
 const { asyncHandler } = require('../lib/asyncHandler');
-const { requireIntParam } = require('../lib/validate');
+const { requireIntParam, optionalHttpUrl, assertMaxLength } = require('../lib/validate');
 
 const router = express.Router();
 
-const AVATAR_DIR = path.join(__dirname, '..', '..', 'uploads', 'avatars');
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024; // 5MB - a profile photo, not a document
-const avatarStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, AVATAR_DIR),
-  filename: (req, file, cb) => cb(null, crypto.randomBytes(16).toString('hex') + path.extname(file.originalname))
-});
+// Extension chosen from the detected type, never from the uploaded filename:
+// a spoofed "avatar.html" served from the static mount would be stored XSS.
+const AVATAR_EXTENSIONS = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/gif': '.gif'
+};
 const uploadAvatar = multer({
-  storage: avatarStorage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: MAX_AVATAR_SIZE },
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith('image/')) return cb(new Error('avatar must be an image'));
+    if (!AVATAR_EXTENSIONS[file.mimetype]) return cb(new Error('avatar must be a JPEG, PNG, WebP or GIF image'));
     cb(null, true);
   }
 });
@@ -75,19 +77,35 @@ const VALID_AVAILABILITY = ['HOURS_5_10', 'HOURS_10_20', 'HOURS_20_40', 'FULL_TI
 router.patch('/me', requireAuth, asyncHandler(async (req, res) => {
   const {
     name, headline, bio, skills, githubUrl, portfolioUrl, linkedinUrl, websiteUrl,
-    location, timezone, profilePic, openToProjects, openToCofounder, openToFreelance,
+    location, timezone, openToProjects, openToCofounder, openToFreelance,
     openToEmployment, availability
   } = req.body;
 
   if (availability !== undefined && availability !== null && !VALID_AVAILABILITY.includes(availability)) {
     return res.status(400).json({ error: 'invalid availability value' });
   }
+  assertMaxLength(name, 80, 'name');
+  assertMaxLength(headline, 120, 'headline');
+  assertMaxLength(bio, 2000, 'bio');
+  assertMaxLength(skills, 500, 'skills');
+  assertMaxLength(location, 120, 'location');
+  assertMaxLength(timezone, 60, 'timezone');
 
+  // profilePic is intentionally NOT editable here - it is only ever set by
+  // the avatar upload route, so a client can't point it at an arbitrary URL
   const updated = await prisma.user.update({
     where: { id: req.user.id },
     data: {
-      name, headline, bio, skills, githubUrl, portfolioUrl, linkedinUrl, websiteUrl,
-      location, timezone, profilePic,
+      name: name !== undefined ? (String(name).trim() || null) : undefined,
+      headline,
+      bio,
+      skills,
+      githubUrl: githubUrl !== undefined ? optionalHttpUrl(githubUrl, 'githubUrl') : undefined,
+      portfolioUrl: portfolioUrl !== undefined ? optionalHttpUrl(portfolioUrl, 'portfolioUrl') : undefined,
+      linkedinUrl: linkedinUrl !== undefined ? optionalHttpUrl(linkedinUrl, 'linkedinUrl') : undefined,
+      websiteUrl: websiteUrl !== undefined ? optionalHttpUrl(websiteUrl, 'websiteUrl') : undefined,
+      location,
+      timezone,
       openToProjects: openToProjects !== undefined ? Boolean(openToProjects) : undefined,
       openToCofounder: openToCofounder !== undefined ? Boolean(openToCofounder) : undefined,
       openToFreelance: openToFreelance !== undefined ? Boolean(openToFreelance) : undefined,
@@ -106,12 +124,14 @@ router.post('/me/avatar', requireAuth, (req, res, next) => {
   });
 }, asyncHandler(async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'no image provided' });
-  const profilePic = `/avatars/${req.file.filename}`;
+  const saved = await storage.saveAvatar(req.file.buffer, AVATAR_EXTENSIONS[req.file.mimetype], req.file.mimetype);
+  const previous = await prisma.user.findUnique({ where: { id: req.user.id }, select: { profilePic: true } });
   const updated = await prisma.user.update({
     where: { id: req.user.id },
-    data: { profilePic },
+    data: { profilePic: saved.url },
     select: { ...PUBLIC_SELECT, email: true, isAdmin: true }
   });
+  await storage.deleteAvatar(previous?.profilePic);
   res.json(updated);
 }));
 

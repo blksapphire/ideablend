@@ -2,9 +2,13 @@
   "name": "idea-blend-backend",
   "version": "0.2.0",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "nodemon --watch src --exec node src/index.js",
     "start": "prisma migrate deploy && node src/index.js",
+    "test": "node --test test/",
     "postinstall": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:generate": "prisma generate"
@@ -16,6 +20,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.0",
     "multer": "^2.3.0",
     "nodemailer": "^9.1.0",

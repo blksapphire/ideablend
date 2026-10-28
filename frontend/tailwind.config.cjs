@@ -36,6 +36,17 @@ module.exports = {
         pagedark: '#09090B',
         surface: '#FFFFFF',
         surfacedark: '#18181B'
+      },
+      // the UI uses finer steps than Tailwind's default scale; without these
+      // keys classes like text-ink/45 and bg-ink/8 silently generate nothing
+      opacity: {
+        8: '0.08',
+        15: '0.15',
+        35: '0.35',
+        45: '0.45',
+        55: '0.55',
+        65: '0.65',
+        85: '0.85'
       }
     }
   },

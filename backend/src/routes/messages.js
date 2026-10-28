@@ -14,13 +14,15 @@ router.get('/projects/:projectId/messages', requireAuth, asyncHandler(async (req
   const check = await assertMember(projectId, req.user.id);
   if (check.error) return res.status(check.code).json({ error: check.error });
 
+  // fetch newest-first so a busy project gets the *latest* 200 messages, then
+  // reverse for the chronological display order the chat UI expects
   const messages = await prisma.message.findMany({
     where: { projectId },
     include: { author: { select: { id: true, name: true, profilePic: true } } },
-    orderBy: { createdAt: 'asc' },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     take: 200
   });
-  res.json(messages);
+  res.json(messages.reverse());
 }));
 
 module.exports = router;

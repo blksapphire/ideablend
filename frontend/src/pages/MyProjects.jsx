@@ -1,13 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { get } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import SignInPrompt from '../components/SignInPrompt';
 import ProjectCard from '../components/ProjectCard';
 
 export default function MyProjects() {
+  const { user } = useAuth();
   const [data, setData] = useState(null);
+  const [error, setError] = useState('');
   const [tab, setTab] = useState('owned');
 
-  useEffect(() => { get('/projects/mine').then(setData); }, []);
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    get('/projects/mine')
+      .then(result => { if (!cancelled) setData(result); })
+      .catch(err => { if (!cancelled) setError(err.message); });
+    return () => { cancelled = true; };
+  }, [user]);
 
+  if (!user) return <SignInPrompt message="Sign in to see your projects." />;
+  if (error) return <p className="max-w-5xl mx-auto px-6 py-16 text-sm text-red-500">{error}</p>;
   if (!data) return <p className="max-w-5xl mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
 
   const list = tab === 'owned' ? data.owned : data.joined;

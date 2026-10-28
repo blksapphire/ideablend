@@ -132,6 +132,8 @@ model User {
   // project/application/membership/review data, same as Role.filledSlots. A
   // stored counter needs something to update it on every relevant event; a
   // computed value can never go stale.
+
+  @@index([openToProjects])
 }
 
 model Project {
@@ -158,6 +160,10 @@ model Project {
   reviews     Review[]
   milestones  Milestone[]
   activities  Activity[]
+
+  @@index([ownerId])
+  @@index([status, visibility])
+  @@index([createdAt])
 }
 
 model ProjectFile {
@@ -171,6 +177,8 @@ model ProjectFile {
   mimeType   String
   size       Int
   createdAt  DateTime @default(now())
+
+  @@index([projectId])
 }
 
 model Role {
@@ -188,6 +196,8 @@ model Role {
   memberships Membership[]
   roleSkills  RoleSkill[]
   // filled count = memberships.length for this role, computed in API, not stored
+
+  @@index([projectId])
 }
 
 model RoleSkill {
@@ -214,6 +224,8 @@ model Application {
   createdAt   DateTime          @default(now())
 
   @@unique([roleId, userId]) // one application per user per role
+  @@index([projectId])
+  @@index([userId])
 }
 
 model Membership {
@@ -228,6 +240,8 @@ model Membership {
   active      Boolean   @default(true) // false if removed/left this specific role
 
   @@unique([roleId, userId]) // a person can hold multiple roles on a project, never the same role twice
+  @@index([projectId])
+  @@index([userId])
 }
 
 model Task {
@@ -240,6 +254,9 @@ model Task {
   assigneeId  Int?
   assignee    User?       @relation("TaskAssignee", fields: [assigneeId], references: [id])
   createdAt   DateTime    @default(now())
+
+  @@index([projectId])
+  @@index([assigneeId])
 }
 
 model Message {
@@ -250,6 +267,8 @@ model Message {
   author    User     @relation(fields: [authorId], references: [id])
   content   String
   createdAt DateTime @default(now())
+
+  @@index([projectId, createdAt])
 }
 
 model Skill {
@@ -284,6 +303,8 @@ model Review {
   createdAt  DateTime @default(now())
 
   @@unique([projectId, reviewerId, revieweeId]) // one review per teammate per project
+  @@index([projectId])
+  @@index([revieweeId])
 }
 
 model Milestone {
@@ -296,6 +317,8 @@ model Milestone {
   completed   Boolean   @default(false)
   completedAt DateTime?
   createdAt   DateTime  @default(now())
+
+  @@index([projectId])
 }
 
 model Activity {
@@ -307,6 +330,8 @@ model Activity {
   type      ActivityType
   message   String       // precomputed human-readable text, e.g. "Sarah joined as Designer"
   createdAt DateTime     @default(now())
+
+  @@index([projectId, createdAt])
 }
 
 model PasswordResetToken {
@@ -317,6 +342,8 @@ model PasswordResetToken {
   expiresAt DateTime
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 enum NotificationType {
@@ -344,6 +371,9 @@ model Notification {
   link      String?
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
 }
 
 model Follow {
@@ -355,6 +385,7 @@ model Follow {
   createdAt   DateTime @default(now())
 
   @@unique([followerId, followingId])
+  @@index([followingId])
 }
 
 model PushSubscription {
@@ -365,6 +396,8 @@ model PushSubscription {
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model AgentConversation {
@@ -376,28 +409,34 @@ model AgentConversation {
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   messages  AgentMessage[]
+
+  @@index([userId, updatedAt])
 }
 
 model AgentMessage {
   id             Int                @id @default(autoincrement())
   conversationId Int
-  conversation   AgentConversation  @relation(fields: [conversationId], references: [id])
+  conversation   AgentConversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   role           AgentRole
   content        String             // text for user/assistant, JSON for tool calls
   createdAt      DateTime           @default(now())
   toolCalls      AgentToolCall[]
+
+  @@index([conversationId, createdAt])
 }
 
 model AgentToolCall {
   id          Int          @id @default(autoincrement())
   messageId   Int
-  message     AgentMessage @relation(fields: [messageId], references: [id])
+  message     AgentMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
   tool        String
   input       String       // JSON
   output      String?      // JSON — null if still in progress or failed
   succeeded   Boolean      @default(false)
   durationMs  Int?
   createdAt   DateTime     @default(now())
+
+  @@index([messageId])
 }
 
 enum AgentRole {

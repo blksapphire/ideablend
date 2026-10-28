@@ -1,11 +1,10 @@
 const webPush = require('web-push');
 
-// VAPID keys must be set in Railway environment variables.
+// VAPID keys must be set in the host's environment variables.
 // Generate a new pair with: node -e "const wp=require('web-push'); const k=wp.generateVAPIDKeys(); console.log(k)"
-// Then set VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY in your Railway service variables.
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webPush.setVapidDetails(
-    'mailto:admin@ideablend.app',
+    process.env.VAPID_SUBJECT || 'mailto:admin@ideablend.app',
     process.env.VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   );

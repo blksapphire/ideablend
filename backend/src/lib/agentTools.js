@@ -1,4 +1,10 @@
 const prisma = require('../prisma');
+const { assertMember } = require('./projectAccess');
+
+function positiveInt(value) {
+  const n = Number(value);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
 
 // Tool definitions in Anthropic's format.
 // Phase 1: read-only. Write tools are prepared but gated behind confirmation
@@ -116,8 +122,10 @@ async function executeTool(toolName, input, userId) {
     }
 
     case 'get_project_detail': {
+      const projectId = positiveInt(input.projectId);
+      if (!projectId) return { error: 'Invalid project id' };
       const project = await prisma.project.findUnique({
-        where: { id: Number(input.projectId) },
+        where: { id: projectId },
         include: {
           owner: { select: { id: true, name: true } },
           roles: {
@@ -129,6 +137,12 @@ async function executeTool(toolName, input, userId) {
         }
       });
       if (!project) return { error: 'Project not found' };
+      // a private project's detail must never leak through the assistant to
+      // someone who isn't on the team
+      if (project.visibility === 'PRIVATE') {
+        const check = await assertMember(projectId, userId);
+        if (check.error) return { error: 'Project not found or you do not have access' };
+      }
       return {
         id: project.id,
         title: project.title,
@@ -149,7 +163,11 @@ async function executeTool(toolName, input, userId) {
     }
 
     case 'get_workspace_summary': {
-      const projectId = Number(input.projectId);
+      const projectId = positiveInt(input.projectId);
+      if (!projectId) return { error: 'Invalid project id' };
+      // tasks, milestones and activity are internal workspace data - members only
+      const check = await assertMember(projectId, userId);
+      if (check.error) return { error: 'Project not found or you do not have access' };
       const [tasks, milestones, activity] = await Promise.all([
         prisma.task.findMany({ where: { projectId }, select: { title: true, status: true } }),
         prisma.milestone.findMany({ where: { projectId }, select: { title: true, completed: true } }),
@@ -212,7 +230,9 @@ async function executeTool(toolName, input, userId) {
     }
 
     case 'search_builders': {
-      const where = { isBanned: false };
+      // mirror the public builder directory: only people who opted in to
+      // project collaboration should surface as candidates
+      const where = { isBanned: false, openToProjects: true };
       if (input.query) where.OR = [
         { name: { contains: input.query, mode: 'insensitive' } },
         { headline: { contains: input.query, mode: 'insensitive' } }

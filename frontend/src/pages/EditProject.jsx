@@ -8,6 +8,7 @@ const STATUSES = ['RECRUITING', 'ACTIVE', 'COMPLETED'];
 const TYPES = ['STARTUP', 'OPEN_SOURCE', 'SIDE_PROJECT', 'HACKATHON', 'RESEARCH', 'COMMUNITY', 'EXPERIMENTAL'];
 const COMMITMENTS = ['VOLUNTEER', 'EQUITY', 'PAID', 'MIXED'];
 const EXPERIENCE = ['ANY', 'JUNIOR', 'MID', 'SENIOR'];
+const VISIBILITIES = ['PUBLIC', 'PRIVATE'];
 
 export default function EditProject() {
   const { id } = useParams();
@@ -29,18 +30,24 @@ export default function EditProject() {
   const [inviteError, setInviteError] = useState('');
 
   function load() {
+    setError('');
     get(`/projects/${id}`).then(data => {
       setProject(data);
       setFields({
         title: data.title, description: data.description, category: data.category || '',
-        stage: data.stage, status: data.status, type: data.type || '', commitment: data.commitment || '', repoUrl: data.repoUrl || ''
+        stage: data.stage, status: data.status, visibility: data.visibility || 'PUBLIC',
+        type: data.type || '', commitment: data.commitment || '', repoUrl: data.repoUrl || ''
       });
-    });
+    }).catch(err => setError(err.message));
   }
 
   useEffect(() => { load(); }, [id]);
 
-  if (!project || !fields) return <p className="max-w-lg mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
+  if (!project || !fields) {
+    return error
+      ? <p className="max-w-lg mx-auto px-6 py-16 text-sm text-red-500">{error}</p>
+      : <p className="max-w-lg mx-auto px-6 py-16 text-ink/50 dark:text-ink-dark/50">Loading…</p>;
+  }
 
   if (!user || user.id !== project.owner.id) {
     return <p className="max-w-lg mx-auto px-6 py-16 text-center text-ink/60 dark:text-ink-dark/60">Only the project owner can edit this.</p>;
@@ -133,6 +140,9 @@ export default function EditProject() {
           <select value={fields.commitment} onChange={set('commitment')} className="p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm">
             <option value="">Commitment…</option>
             {COMMITMENTS.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <select value={fields.visibility} onChange={set('visibility')} className="p-2.5 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark text-sm">
+            {VISIBILITIES.map(v => <option key={v} value={v}>{v === 'PUBLIC' ? 'Public project' : 'Private project'}</option>)}
           </select>
         </div>
 

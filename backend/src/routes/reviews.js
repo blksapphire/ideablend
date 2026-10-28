@@ -2,7 +2,7 @@ const express = require('express');
 const prisma = require('../prisma');
 const { requireAuth } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../lib/asyncHandler');
-const { requireIntParam } = require('../lib/validate');
+const { requireIntParam, assertMaxLength } = require('../lib/validate');
 const { notify } = require('../lib/notify');
 
 const router = express.Router();
@@ -39,6 +39,7 @@ router.post('/projects/:projectId/reviews', requireAuth, asyncHandler(async (req
     return res.status(400).json({ error: 'rating must be an integer 1-5' });
   }
   if (targetId === req.user.id) return res.status(400).json({ error: "can't review yourself" });
+  assertMaxLength(comment, 2000, 'comment');
 
   const result = await getTeammates(projectId);
   if (!result) return res.status(404).json({ error: 'not found' });

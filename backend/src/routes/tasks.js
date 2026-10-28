@@ -2,7 +2,7 @@ const express = require('express');
 const prisma = require('../prisma');
 const { requireAuth } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../lib/asyncHandler');
-const { requireIntParam, requireFields } = require('../lib/validate');
+const { requireIntParam, requireFields, assertMaxLength } = require('../lib/validate');
 const { assertMember, getOtherMemberIds } = require('../lib/projectAccess');
 const { logActivity } = require('../lib/activity');
 const { notify } = require('../lib/notify');
@@ -35,10 +35,18 @@ router.post('/projects/:projectId/tasks', requireAuth, asyncHandler(async (req, 
 
   requireFields(req.body, ['title']);
   const { title, description, assigneeId } = req.body;
+  assertMaxLength(title, 200, 'title');
+  assertMaxLength(description, 5000, 'description');
+
+  const targetId = assigneeId ? requireIntParam(assigneeId, 'assigneeId') : null;
+  if (targetId) {
+    const assigneeCheck = await assertMember(projectId, targetId);
+    if (assigneeCheck.error) return res.status(400).json({ error: 'assignee must be a project member' });
+  }
 
   const [task] = await prisma.$transaction(async (tx) => {
     const t = await tx.task.create({
-      data: { projectId, title, description, assigneeId: assigneeId ? requireIntParam(assigneeId, 'assigneeId') : null }
+      data: { projectId, title, description, assigneeId: targetId }
     });
     await logActivity(tx, { projectId, actorId: req.user.id, type: 'TASK_CREATED', message: `${req.user.name || 'Someone'} added task "${title}"` });
     return [t];
@@ -56,6 +64,17 @@ router.patch('/tasks/:id', requireAuth, asyncHandler(async (req, res) => {
   if (check.error) return res.status(check.code).json({ error: check.error });
 
   const { title, description, status, assigneeId } = req.body;
+  assertMaxLength(title, 200, 'title');
+  assertMaxLength(description, 5000, 'description');
+
+  let targetAssignee;
+  if (assigneeId !== undefined) {
+    targetAssignee = assigneeId ? requireIntParam(assigneeId, 'assigneeId') : null;
+    if (targetAssignee) {
+      const assigneeCheck = await assertMember(task.projectId, targetAssignee);
+      if (assigneeCheck.error) return res.status(400).json({ error: 'assignee must be a project member' });
+    }
+  }
 
   if (status) {
     if (!ALL_STATUSES.includes(status)) return res.status(400).json({ error: 'invalid status' });
@@ -74,7 +93,7 @@ router.patch('/tasks/:id', requireAuth, asyncHandler(async (req, res) => {
   const [updated] = await prisma.$transaction(async (tx) => {
     const t = await tx.task.update({
       where: { id },
-      data: { title, description, status, assigneeId: assigneeId !== undefined ? (assigneeId ? Number(assigneeId) : null) : undefined }
+      data: { title, description, status, assigneeId: targetAssignee }
     });
     if (willComplete) {
       await logActivity(tx, { projectId: task.projectId, actorId: req.user.id, type: 'TASK_COMPLETED', message: `${req.user.name || 'Someone'} completed "${t.title}"` });

@@ -21,4 +21,45 @@ function requireFields(body, fields) {
   }
 }
 
-module.exports = { requireIntParam, requireFields };
+function badRequest(message) {
+  const err = new Error(message);
+  err.status = 400;
+  return err;
+}
+
+// Emails are stored and compared lowercase so "Sam@Example.com" and
+// "sam@example.com" can't create two accounts (or fail to log in).
+function normalizeEmail(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function assertMaxLength(value, max, label) {
+  if (value != null && String(value).length > max) {
+    throw badRequest(`${label} must be at most ${max} characters`);
+  }
+}
+
+// Only absolute http(s) links belong in profile/project URL fields. Without
+// this, a "javascript:" value would be rendered as a clickable link.
+function optionalHttpUrl(value, label = 'url') {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+  let parsed;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    throw badRequest(`${label} must be a valid URL`);
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw badRequest(`${label} must start with http:// or https://`);
+  }
+  return raw;
+}
+
+module.exports = {
+  requireIntParam,
+  requireFields,
+  normalizeEmail,
+  assertMaxLength,
+  optionalHttpUrl
+};

@@ -43,9 +43,12 @@ async function optionalAuth(req, res, next) {
     const data = jwt.verify(token, process.env.JWT_SECRET);
     const user = await prisma.user.findUnique({
       where: { id: data.id },
-      select: { id: true, email: true, name: true, profilePic: true }
+      select: { id: true, email: true, name: true, profilePic: true, isBanned: true }
     });
-    if (user) req.user = user;
+    if (user && !user.isBanned) {
+      const { isBanned, ...safe } = user;
+      req.user = safe;
+    }
   } catch (err) {
     // ignore invalid token in optional mode
   }
