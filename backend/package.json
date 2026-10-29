@@ -11,7 +11,8 @@
     "test": "node --test test/",
     "postinstall": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",
@@ -31,5 +32,8 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }

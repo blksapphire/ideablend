@@ -50,6 +50,15 @@ npm run dev                   # http://localhost:5173
 
 Uploaded avatars and project files are written to `backend/uploads/` when Supabase is not configured.
 
+### Demo data
+
+```bash
+cd backend
+npm run db:seed               # after migrations; safe to re-run
+```
+
+Seeds eight demo builders and seven projects (recruiting, active, private, and completed) with roles, applications, tasks, milestones, messages, reviews and notifications. All demo accounts share the password in `SEED_PASSWORD` (default `demo12345`), for example `maya@example.com` or `leo@example.com`. Re-running replaces only demo-owned records; real users are untouched. Set a different `SEED_PASSWORD` before seeding a public deployment.
+
 ### Environment variables
 
 | Variable | Required | Purpose |
@@ -100,7 +109,7 @@ DATABASE_URL=postgresql://.../ideablend_test NODE_ENV=test JWT_SECRET=smoke-test
 SMOKE_BASE=http://127.0.0.1:4100/api node scripts/smoke.mjs
 ```
 
-The smoke script exercises registration, auth normalization, project creation, applications/accept/confirm, workspace privacy, assistant fallback, password reset single-use behavior, URL validation, rate-limit headers and CORS.
+The smoke script exercises registration, auth normalization, project creation, applications/accept/confirm, workspace privacy, assistant fallback, password reset single-use behavior, URL validation, rate-limit headers and CORS. CI runs it against a throwaway Postgres service on every push, along with the demo seed.
 
 ## Security notes
 
