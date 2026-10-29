@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get } from '../lib/api';
 import { Avatar } from './BlendRings';
+import { Input } from './ui/Field';
+import { Search } from './ui/icons';
 
 export default function GlobalSearch() {
   const navigate = useNavigate();
@@ -10,23 +12,25 @@ export default function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   const [builders, setBuilders] = useState([]);
+  const [error, setError] = useState('');
   const debounceRef = useRef(null);
 
   useEffect(() => {
-    function handleKey(e) {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
+    function handleKey(event) {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
         inputRef.current?.focus();
       }
-      if (e.key === 'Escape') setOpen(false);
+      if (event.key === 'Escape') setOpen(false);
     }
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, []);
 
-  function handleChange(e) {
-    const value = e.target.value;
+  function handleChange(event) {
+    const value = event.target.value;
     setQuery(value);
+    setError('');
     clearTimeout(debounceRef.current);
     if (!value.trim()) {
       setProjects([]);
@@ -34,12 +38,18 @@ export default function GlobalSearch() {
       return;
     }
     debounceRef.current = setTimeout(async () => {
-      const [projectData, userData] = await Promise.all([
-        get(`/projects?q=${encodeURIComponent(value)}&pageSize=4`),
-        get(`/users?q=${encodeURIComponent(value)}&pageSize=4`)
-      ]);
-      setProjects(projectData.projects || []);
-      setBuilders(userData.users || []);
+      try {
+        const [projectData, userData] = await Promise.all([
+          get(`/projects?q=${encodeURIComponent(value)}&pageSize=4`),
+          get(`/users?q=${encodeURIComponent(value)}&pageSize=4`)
+        ]);
+        setProjects(projectData.projects || []);
+        setBuilders(userData.users || []);
+      } catch (err) {
+        setProjects([]);
+        setBuilders([]);
+        setError('Search is unavailable right now.');
+      }
     }, 250);
   }
 
@@ -52,47 +62,64 @@ export default function GlobalSearch() {
   const hasResults = projects.length > 0 || builders.length > 0;
 
   return (
-    <div className="relative flex-1 max-w-md">
+    <div className="relative max-w-md flex-1">
       <div className="relative">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/40 dark:text-ink-dark/40">
-          <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" />
-        </svg>
-        <input
+        <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ui-subtle" />
+        <Input
           ref={inputRef}
           value={query}
           onChange={handleChange}
           onFocus={() => setOpen(true)}
           placeholder="Search projects, people, or roles..."
-          className="w-full pl-9 pr-14 py-2 rounded-lg border border-ink/20 dark:border-ink-dark/20 bg-surface dark:bg-surfacedark text-sm"
+          aria-label="Search Idea Blend"
+          className="py-2 pl-9 pr-14"
         />
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[10px] text-ink/30 dark:text-ink-dark/30 border border-ink/15 dark:border-ink-dark/15 rounded px-1.5 py-0.5">⌘K</span>
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-ui-line/15 px-1.5 py-0.5 font-mono text-[10px] text-ui-subtle">
+          ⌘K
+        </span>
       </div>
 
       {open && query.trim() && (
         <>
           <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-full mt-2 w-full bg-surface dark:bg-surfacedark border border-ink/20 dark:border-ink-dark/20 rounded-xl shadow-lg z-30 max-h-96 overflow-y-auto">
-            {!hasResults ? (
-              <p className="p-4 text-sm text-ink/50 dark:text-ink-dark/50">No matches yet.</p>
+          <div className="absolute left-0 top-full z-30 mt-2 max-h-96 w-full overflow-y-auto rounded-xl border border-ui-line/15 bg-ui-surface shadow-card-hover dark:shadow-card-dark">
+            {error ? (
+              <p className="p-4 text-sm text-red-500">{error}</p>
+            ) : !hasResults ? (
+              <p className="p-4 text-sm text-ui-muted">No matches yet.</p>
             ) : (
               <>
                 {projects.length > 0 && (
-                  <div>
-                    <p className="font-mono text-[10px] px-4 pt-3 pb-1 text-ink/40 dark:text-ink-dark/40">PROJECTS</p>
-                    {projects.map(p => (
-                      <button key={p.id} onClick={() => go(`/projects/${p.id}`)} className="w-full text-left px-4 py-2 text-sm hover:bg-page dark:hover:bg-pagedark">
-                        {p.title}
+                  <div className="py-1">
+                    <p className="px-4 pb-1 pt-2 font-mono text-2xs uppercase tracking-[0.12em] text-ui-subtle">
+                      Projects
+                    </p>
+                    {projects.map(project => (
+                      <button
+                        key={project.id}
+                        type="button"
+                        onClick={() => go(`/projects/${project.id}`)}
+                        className="block w-full px-4 py-2 text-left text-sm text-ui-fg transition-colors hover:bg-ui-raised/60"
+                      >
+                        {project.title}
                       </button>
                     ))}
                   </div>
                 )}
                 {builders.length > 0 && (
-                  <div>
-                    <p className="font-mono text-[10px] px-4 pt-3 pb-1 text-ink/40 dark:text-ink-dark/40">BUILDERS</p>
-                    {builders.map(b => (
-                      <button key={b.id} onClick={() => go(`/users/${b.id}`)} className="w-full text-left px-4 py-2 text-sm hover:bg-page dark:hover:bg-pagedark flex items-center gap-2">
-                        <Avatar user={b} size={20} />
-                        {b.name || 'Unnamed builder'}
+                  <div className="border-t border-ui-line/10 py-1">
+                    <p className="px-4 pb-1 pt-2 font-mono text-2xs uppercase tracking-[0.12em] text-ui-subtle">
+                      Builders
+                    </p>
+                    {builders.map(builder => (
+                      <button
+                        key={builder.id}
+                        type="button"
+                        onClick={() => go(`/users/${builder.id}`)}
+                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-ui-fg transition-colors hover:bg-ui-raised/60"
+                      >
+                        <Avatar user={builder} size={20} />
+                        {builder.name || 'Unnamed builder'}
                       </button>
                     ))}
                   </div>

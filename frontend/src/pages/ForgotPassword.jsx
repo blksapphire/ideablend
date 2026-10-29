@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { post } from '../lib/api';
+import AuthLayout from '../components/AuthLayout';
+import { Field, Input } from '../components/ui/Field';
+import Button from '../components/ui/Button';
+import Notice from '../components/ui/Notice';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function ForgotPassword() {
+  useDocumentMeta({
+    title: 'Reset your password',
+    description: 'Request a password reset link for your Idea Blend account.'
+  });
+
   const [email, setEmail] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function submit(e) {
-    e.preventDefault();
+  async function submit(event) {
+    event.preventDefault();
     setError('');
     setLoading(true);
     try {
@@ -23,33 +33,57 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="max-w-sm mx-auto px-6 py-16">
-      <h1 className="font-display font-bold text-2xl mb-6">Reset your password</h1>
+    <AuthLayout
+      kicker="Account recovery"
+      title="Reset your password"
+      description="Enter the email on your account and we will send you a reset link."
+      footer={
+        <p className="mt-5 text-center text-sm text-ui-muted">
+          <Link to="/login" className="font-medium text-blue-text dark:text-blue-textdark">
+            Back to sign in
+          </Link>
+        </p>
+      }
+    >
       {result ? (
-        <div>
-          <p className="text-sm text-ink/70 dark:text-ink-dark/70">{result.message}</p>
+        <div className="space-y-4">
+          <Notice tone="success">{result.message}</Notice>
           {result.devModeResetLink && (
-            <div className="mt-4 p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark">
-              <p className="text-xs text-ink/50 dark:text-ink-dark/50 mb-2">No email service is configured yet, so here's your link directly:</p>
-              <Link to={result.devModeResetLink.replace(/^https?:\/\/[^/]+/, '')} className="text-sm text-blue-text dark:text-blue-textdark break-all">
+            <Notice tone="info" title="Development reset link">
+              <p className="text-xs">
+                No email service is configured yet, so here is your link directly:
+              </p>
+              <Link
+                to={result.devModeResetLink.replace(/^https?:\/\/[^/]+/, '')}
+                className="mt-2 block break-all text-xs font-medium underline underline-offset-2"
+              >
                 {result.devModeResetLink}
               </Link>
-            </div>
+            </Notice>
           )}
+          <Button to="/login" variant="secondary" fullWidth>
+            Back to sign in
+          </Button>
         </div>
       ) : (
-        <form onSubmit={submit} className="space-y-3">
-          <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="you@example.com"
-            className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          <button disabled={loading} className="w-full p-3 rounded-lg bg-blue dark:bg-blue-dark text-white font-semibold">
+        <form onSubmit={submit} noValidate className="space-y-4">
+          <Field label="Email" required>
+            <Input
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={event => setEmail(event.target.value)}
+              placeholder="you@example.com"
+            />
+          </Field>
+
+          {error && <Notice tone="error">{error}</Notice>}
+
+          <Button type="submit" size="lg" fullWidth loading={loading}>
             {loading ? 'Sending…' : 'Send reset link'}
-          </button>
+          </Button>
         </form>
       )}
-      <p className="text-sm text-ink/60 dark:text-ink-dark/60 mt-4">
-        <Link to="/login" className="text-blue-text dark:text-blue-textdark font-medium">Back to sign in</Link>
-      </p>
-    </div>
+    </AuthLayout>
   );
 }

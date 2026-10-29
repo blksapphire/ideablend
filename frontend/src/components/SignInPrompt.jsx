@@ -1,13 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import EmptyState from './ui/EmptyState';
+import Button from './ui/Button';
 
 export default function SignInPrompt({ message }) {
   return (
-    <div className="max-w-lg mx-auto px-6 py-16 text-center">
-      <p className="text-ink/60 dark:text-ink-dark/60 mb-4">{message}</p>
-      <Link to="/login" className="inline-block px-5 py-2.5 rounded-lg bg-blue dark:bg-blue-dark text-white text-sm font-semibold">
-        Sign in
-      </Link>
-    </div>
+    <main className="mx-auto max-w-shell px-6 py-16">
+      <EmptyState
+        className="mx-auto max-w-lg"
+        title="Sign in to continue"
+        description={message}
+        action={<Button to="/login">Sign in</Button>}
+      />
+    </main>
   );
 }

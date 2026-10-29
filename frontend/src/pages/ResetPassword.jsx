@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { post } from '../lib/api';
+import AuthLayout from '../components/AuthLayout';
+import { Field, PasswordInput } from '../components/ui/Field';
+import Button from '../components/ui/Button';
+import Notice from '../components/ui/Notice';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function ResetPassword() {
+  useDocumentMeta({
+    title: 'Set a new password',
+    description: 'Choose a new password for your Idea Blend account.'
+  });
+
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
@@ -11,8 +21,8 @@ export default function ResetPassword() {
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  async function submit(e) {
-    e.preventDefault();
+  async function submit(event) {
+    event.preventDefault();
     setError('');
     if (password.length < 8) return setError('Password must be at least 8 characters.');
     setLoading(true);
@@ -29,28 +39,55 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
-      <div className="max-w-sm mx-auto px-6 py-16 text-center">
-        <p className="text-sm text-ink/60 dark:text-ink-dark/60">Missing reset token. Use the link from your reset email.</p>
-        <Link to="/forgot-password" className="text-sm text-blue-text dark:text-blue-textdark font-medium mt-2 inline-block">Request a new link</Link>
-      </div>
+      <AuthLayout
+        kicker="Account recovery"
+        title="Reset link is incomplete"
+        panel={false}
+        footer={
+          <p className="mt-5 text-center text-sm text-ui-muted">
+            <Link to="/login" className="font-medium text-blue-text dark:text-blue-textdark">
+              Back to sign in
+            </Link>
+          </p>
+        }
+      >
+        <div className="space-y-4">
+          <Notice tone="error">Missing reset token. Use the link from your reset email.</Notice>
+          <Button to="/forgot-password" variant="secondary" fullWidth>
+            Request a new link
+          </Button>
+        </div>
+      </AuthLayout>
     );
   }
 
   return (
-    <div className="max-w-sm mx-auto px-6 py-16">
-      <h1 className="font-display font-bold text-2xl mb-6">Set a new password</h1>
+    <AuthLayout
+      kicker="Account recovery"
+      title="Set a new password"
+      description="Choose something you have not used before."
+      panel={false}
+    >
       {done ? (
-        <p className="text-sm text-green-text dark:text-green-textdark">Password updated — redirecting to sign in…</p>
+        <Notice tone="success">Password updated — redirecting to sign in…</Notice>
       ) : (
-        <form onSubmit={submit} className="space-y-3">
-          <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="New password"
-            className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          <button disabled={loading} className="w-full p-3 rounded-lg bg-blue dark:bg-blue-dark text-white font-semibold">
+        <form onSubmit={submit} noValidate className="space-y-4">
+          <Field label="New password" hint="At least 8 characters." required>
+            <PasswordInput
+              autoComplete="new-password"
+              value={password}
+              onChange={event => setPassword(event.target.value)}
+              placeholder="New password"
+            />
+          </Field>
+
+          {error && <Notice tone="error">{error}</Notice>}
+
+          <Button type="submit" size="lg" fullWidth loading={loading}>
             {loading ? 'Updating…' : 'Update password'}
-          </button>
+          </Button>
         </form>
       )}
-    </div>
+    </AuthLayout>
   );
 }

@@ -2,7 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-html { scroll-behavior: smooth; }
+:root {
+  --ib-canvas: 250 250 250;
+  --ib-surface: 255 255 255;
+  --ib-raised: 244 244 245;
+  --ib-fg: 9 9 11;
+  --ib-muted: 82 82 91;
+  --ib-subtle: 113 113 122;
+  --ib-line: 9 9 11;
+  --ib-focus: 37 99 235;
+  color-scheme: light;
+}
+
+.dark {
+  --ib-canvas: 9 9 11;
+  --ib-surface: 24 24 27;
+  --ib-raised: 39 39 42;
+  --ib-fg: 250 250 250;
+  --ib-muted: 161 161 170;
+  --ib-subtle: 113 113 122;
+  --ib-line: 250 250 250;
+  --ib-focus: 59 130 246;
+  color-scheme: dark;
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 
 body {
   @apply bg-page dark:bg-pagedark text-ink dark:text-ink-dark font-sans antialiased;
@@ -28,11 +52,37 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 ::-webkit-scrollbar-thumb:hover { @apply bg-ink/30 dark:bg-ink-dark/30; }
 
 :focus-visible {
-  outline: 2px solid #2563EB;
+  outline: 2px solid rgb(var(--ib-focus));
   outline-offset: 3px;
 }
 
 @layer components {
+  /* Refined surface used by new primitives. */
+  .ib-card {
+    @apply rounded-card border border-ui-line/10 bg-ui-surface shadow-card;
+  }
+  .dark .ib-card {
+    @apply shadow-card-dark;
+  }
+
+  /* Shared text-field look; label/hint wiring lives in the Field primitive. */
+  .ib-input {
+    @apply w-full rounded-field border border-ui-line/15 bg-ui-surface px-3.5 py-2.5 text-sm text-ui-fg placeholder:text-ui-subtle transition-colors duration-200 focus:border-ui-focus/60 focus:outline-none focus:ring-4 focus:ring-ui-focus/10;
+  }
+  .ib-input[aria-invalid='true'] {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500/10;
+  }
+
+  .ib-skeleton {
+    @apply animate-ib-shimmer rounded-md bg-ui-raised;
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    background-size: 200% 100%;
+  }
+  .dark .ib-skeleton {
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  }
+
+  /* Legacy shims: still used by workspace, admin and form screens until pass 2. */
   .ib-surface {
     @apply bg-surface dark:bg-surfacedark border border-ink/10 dark:border-ink-dark/10 shadow-[0_8px_30px_rgba(15,23,42,0.04)] dark:shadow-none;
   }
@@ -46,6 +96,16 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
   }
 
   .ib-kicker {
-    @apply font-mono text-[10px] uppercase tracking-[0.16em] text-ink/45 dark:text-ink-dark/45;
+    @apply font-mono text-2xs uppercase tracking-[0.16em] text-ui-subtle;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

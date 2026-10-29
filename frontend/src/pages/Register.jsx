@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import AuthLayout from '../components/AuthLayout';
+import { Field, Input, PasswordInput } from '../components/ui/Field';
+import Button from '../components/ui/Button';
+import Notice from '../components/ui/Notice';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function Register() {
+  useDocumentMeta({
+    title: 'Create an account',
+    description: 'Create an Idea Blend account and start finding collaborators for your next project.'
+  });
+
   const [fields, setFields] = useState({ name: '', email: '', password: '', skills: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -10,11 +20,11 @@ export default function Register() {
   const navigate = useNavigate();
 
   function set(key) {
-    return e => setFields(f => ({ ...f, [key]: e.target.value }));
+    return event => setFields(current => ({ ...current, [key]: event.target.value }));
   }
 
-  async function submit(e) {
-    e.preventDefault();
+  async function submit(event) {
+    event.preventDefault();
     setError('');
     if (!fields.email || !fields.password) return setError('Email and password are required.');
     setLoading(true);
@@ -29,25 +39,62 @@ export default function Register() {
   }
 
   return (
-    <div className="max-w-sm mx-auto px-6 py-16">
-      <h1 className="font-display font-bold text-2xl mb-6">Create an account</h1>
-      <form onSubmit={submit} className="space-y-3">
-        <input value={fields.name} onChange={set('name')} placeholder="Your name"
-          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
-        <input value={fields.email} onChange={set('email')} type="email" placeholder="you@example.com"
-          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
-        <input value={fields.password} onChange={set('password')} type="password" placeholder="Password"
-          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
-        <input value={fields.skills} onChange={set('skills')} placeholder="Skills, comma separated"
-          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark" />
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        <button disabled={loading} className="w-full p-3 rounded-lg bg-blue dark:bg-blue-dark text-white font-semibold">
+    <AuthLayout
+      kicker="Join Idea Blend"
+      title="Create an account"
+      description="Tell people what you build. You can fill in the rest later."
+      footer={
+        <p className="mt-5 text-center text-sm text-ui-muted">
+          Already have an account?{' '}
+          <Link to="/login" className="font-medium text-blue-text dark:text-blue-textdark">
+            Sign in
+          </Link>
+        </p>
+      }
+    >
+      <form onSubmit={submit} noValidate className="space-y-4">
+        <Field label="Name">
+          <Input
+            autoComplete="name"
+            value={fields.name}
+            onChange={set('name')}
+            placeholder="Your name"
+          />
+        </Field>
+
+        <Field label="Email" required>
+          <Input
+            type="email"
+            autoComplete="email"
+            value={fields.email}
+            onChange={set('email')}
+            placeholder="you@example.com"
+          />
+        </Field>
+
+        <Field label="Password" hint="At least 8 characters." required>
+          <PasswordInput
+            autoComplete="new-password"
+            value={fields.password}
+            onChange={set('password')}
+            placeholder="Choose a password"
+          />
+        </Field>
+
+        <Field label="Skills" hint="Separate with commas, e.g. React, product design.">
+          <Input
+            value={fields.skills}
+            onChange={set('skills')}
+            placeholder="React, product design"
+          />
+        </Field>
+
+        {error && <Notice tone="error">{error}</Notice>}
+
+        <Button type="submit" size="lg" fullWidth loading={loading}>
           {loading ? 'Creating account…' : 'Create account'}
-        </button>
+        </Button>
       </form>
-      <p className="text-sm text-ink/60 dark:text-ink-dark/60 mt-4">
-        Already have an account? <Link to="/login" className="text-blue-text dark:text-blue-textdark font-medium">Sign in</Link>
-      </p>
-    </div>
+    </AuthLayout>
   );
 }

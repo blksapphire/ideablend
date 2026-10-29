@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import AuthLayout from '../components/AuthLayout';
+import { Field, Input, PasswordInput } from '../components/ui/Field';
+import Button from '../components/ui/Button';
+import Notice from '../components/ui/Notice';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function Login() {
+  useDocumentMeta({ title: 'Sign in', description: 'Sign in to your Idea Blend account.' });
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -10,8 +17,8 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  async function submit(e) {
-    e.preventDefault();
+  async function submit(event) {
+    event.preventDefault();
     setError('');
     if (!email || !password) return setError('Enter your email and password.');
     setLoading(true);
@@ -26,28 +33,54 @@ export default function Login() {
   }
 
   return (
-    <div className="max-w-sm mx-auto px-6 py-16">
-      <h1 className="font-display font-bold text-2xl mb-6">Sign in</h1>
-      <form onSubmit={submit} className="space-y-3">
-        <input
-          value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="you@example.com"
-          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark"
-        />
-        <input
-          value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Password"
-          className="w-full p-3 rounded-lg border border-ink/25 dark:border-ink-dark/25 bg-surface dark:bg-surfacedark"
-        />
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        <button disabled={loading} className="w-full p-3 rounded-lg bg-blue dark:bg-blue-dark text-white font-semibold">
+    <AuthLayout
+      kicker="Welcome back"
+      title="Sign in"
+      description="Pick up where you left off."
+      footer={
+        <p className="mt-5 text-center text-sm text-ui-muted">
+          New here?{' '}
+          <Link to="/register" className="font-medium text-blue-text dark:text-blue-textdark">
+            Create an account
+          </Link>
+        </p>
+      }
+    >
+      <form onSubmit={submit} noValidate className="space-y-4">
+        <Field label="Email" required>
+          <Input
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={event => setEmail(event.target.value)}
+            placeholder="you@example.com"
+          />
+        </Field>
+
+        <Field label="Password" required>
+          <PasswordInput
+            autoComplete="current-password"
+            value={password}
+            onChange={event => setPassword(event.target.value)}
+            placeholder="Your password"
+          />
+        </Field>
+
+        <div className="-mt-1 flex justify-end">
+          <Link
+            to="/forgot-password"
+            className="text-xs font-medium text-blue-text dark:text-blue-textdark"
+          >
+            Forgot password?
+          </Link>
+        </div>
+
+        {error && <Notice tone="error">{error}</Notice>}
+
+        <Button type="submit" size="lg" fullWidth loading={loading}>
           {loading ? 'Signing in…' : 'Sign in'}
-        </button>
+        </Button>
       </form>
-      <p className="text-sm text-ink/60 dark:text-ink-dark/60 mt-3">
-        <Link to="/forgot-password" className="text-blue-text dark:text-blue-textdark font-medium">Forgot password?</Link>
-      </p>
-      <p className="text-sm text-ink/60 dark:text-ink-dark/60 mt-4">
-        New here? <Link to="/register" className="text-blue-text dark:text-blue-textdark font-medium">Create an account</Link>
-      </p>
-    </div>
+    </AuthLayout>
   );
 }
