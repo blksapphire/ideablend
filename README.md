@@ -36,7 +36,7 @@ Prerequisites: Node.js 20+, PostgreSQL 14+.
 ```bash
 # API
 cd backend
-cp .env.example .env          # set DATABASE_URL and JWT_SECRET
+cp .env.example .env          # set DATABASE_URL, DIRECT_URL and JWT_SECRET
 npm install
 npx prisma migrate deploy
 npm run dev                   # http://localhost:4000
@@ -54,7 +54,8 @@ Uploaded avatars and project files are written to `backend/uploads/` when Supaba
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `DATABASE_URL` | yes | PostgreSQL connection string |
+| `DATABASE_URL` | yes | Pooled PostgreSQL connection string used by the app |
+| `DIRECT_URL` | yes | Non-pooled connection used only by Prisma migrations |
 | `JWT_SECRET` | yes | 32+ random characters in production |
 | `FRONTEND_URL` | prod | Primary frontend origin (e.g. `https://ideablend.vercel.app`) |
 | `CORS_ORIGINS` | no | Extra allowed origins, comma-separated |
@@ -70,13 +71,13 @@ Uploaded avatars and project files are written to `backend/uploads/` when Supaba
 
 ## Deploying on a free stack
 
-1. **Database - Neon**: create a project and copy the **pooled** connection string into `DATABASE_URL` (append `?sslmode=require` if it is not already present). Migrations run automatically on every deploy via `npm start`.
+1. **Database - Neon**: create a project and set two connection strings: the **pooled** one goes in `DATABASE_URL` (append `?sslmode=require` if it is not already present), and the **direct** one goes in `DIRECT_URL` for migrations. Migrations run automatically on every deploy via `npm start`. Render's free tier has no outbound IPv6, so both hosts must be IPv4-reachable (the Neon pooler and direct hosts are; a Supabase direct connection is not, use the Supavisor pooler there instead).
 2. **File storage - Supabase**: create a project, then create two Storage buckets:
    - `avatars` - **public** (profile pictures are public by design)
    - `project-files` - **private** (downloads are proxied through authenticated API routes)
 
    Copy the project URL and the `service_role` key into `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`.
-3. **API - Render**: create a new **Blueprint** from this repo. `render.yaml` defines the free web service, health check (`/api/health`), and prompts for the secrets it cannot generate (`DATABASE_URL`, `FRONTEND_URL`, Supabase keys). Leave `FRONTEND_URL` blank until Vercel is deployed, then set it and redeploy.
+3. **API - Render**: create a new **Blueprint** from this repo. `render.yaml` defines the free web service, health check (`/api/health`), and prompts for the secrets it cannot generate (`DATABASE_URL`, `DIRECT_URL`, `FRONTEND_URL`, Supabase keys). Leave `FRONTEND_URL` blank until Vercel is deployed, then set it and redeploy.
 4. **Frontend - Vercel**: import the repo, set the **root directory** to `frontend` (framework: Vite), and add `VITE_API_BASE=https://<your-service>.onrender.com/api`. `frontend/vercel.json` handles SPA route rewrites.
 5. Redeploy the API with `FRONTEND_URL` set to the Vercel production URL so CORS and email links resolve correctly.
 
